@@ -47,10 +47,9 @@
         /* Konfigurasi Kertas A4 */
         @page {
             size: A4 portrait;
-            margin: 0mm; /* KUNCI 1: Hapus margin browser agar ukurannya tidak bentrok/ganda */
+            margin: 0mm;
         }
 
-        /* Efek tampilan "kertas" saat dilihat di web/browser */
         .kertas-a4 {
             width: 210mm;
             min-height: 297mm;
@@ -62,7 +61,6 @@
             background-color: #ffffff;
         }
 
-        /* Gradasi EXE Khusus Border */
         .border-gradient-brand {
             border-image: linear-gradient(135deg, #d81b60 0%, #f57c00 50%, #fbc02d 100%) 1;
         }
@@ -73,62 +71,106 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* --- CSS BARU UNTUK GAMBAR FALLBACK --- */
+        /* --- CSS FALLBACK UNTUK PRINT --- */
         .print-fallback {
-            display: none; /* Sembunyikan di web normal */
+            display: none; 
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Supaya tidak mengganggu saat mau coret-coret */
+            pointer-events: none;
+            z-index: 50; /* Pastikan selalu paling atas saat diprint */
+        }
+
+        /* --- CSS UNTUK GAMBAR YANG DI-PASTE --- */
+        .pasted-image-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            min-width: 50px;
+            min-height: 50px;
+            cursor: move;
+            z-index: 5;
+            border: 2px dashed transparent;
+            box-sizing: border-box;
+        }
+        
+        .pasted-image-container:hover, .pasted-image-container.active-img {
+            border-color: #2563eb; /* Border biru saat di-hover/aktif */
+        }
+
+        .pasted-image-container img {
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Cegah drag bawaan browser */
+            display: block;
+        }
+
+        .resize-handle {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 16px;
+            height: 16px;
+            background: #2563eb;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: se-resize;
+            display: none;
             z-index: 10;
         }
 
-        /* Saat dicetak, aktifkan trik khusus tabel agar header & footer berulang */
+        .delete-img-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .pasted-image-container:hover .resize-handle,
+        .pasted-image-container:hover .delete-img-btn,
+        .pasted-image-container.active-img .resize-handle,
+        .pasted-image-container.active-img .delete-img-btn {
+            display: flex;
+        }
+
         @media print {
-            body {
-                background-color: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            #pages-container {
-                gap: 0 !important;
-            }
+            body { background-color: white !important; margin: 0 !important; padding: 0 !important; }
+            #pages-container { gap: 0 !important; }
             .kertas-a4 {
                 box-shadow: none !important;
                 margin: 0 !important;
-                padding: 15mm !important; /* KUNCI 2: Margin cetak dikontrol murni dari dalam kertas agar presisi */
+                padding: 15mm !important; 
                 width: 210mm !important;
-                height: 297mm !important; /* Paksa ukurannya persis tinggi A4 */
+                height: 297mm !important; 
                 max-height: 297mm !important;
                 box-sizing: border-box !important;
                 page-break-after: always !important;
                 break-after: page !important;
-                overflow: hidden !important; /* KUNCI 3: Kunci agar footer tidak terdorong keluar/terpotong */
+                overflow: hidden !important; 
             }
-            .kertas-a4:last-child {
-                page-break-after: auto !important;
-                break-after: auto !important;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            input::placeholder {
-                color: transparent !important;
-            }
-
-            /* KUNCI 4: MATIKAN BUG TABEL BERULANG (Penyebab Halaman Kosong!) */
+            .kertas-a4:last-child { page-break-after: auto !important; break-after: auto !important; }
+            .no-print { display: none !important; }
+            input::placeholder { color: transparent !important; }
             thead { display: table-row-group !important; }
             tfoot { display: table-row-group !important; }
             
-            /* Sembunyikan grid outline kanvas dan pastikan ukuran fit di print */
             .canvas-container {
                 border: none !important;
                 box-shadow: none !important;
-                height: 190mm !important; /* KUNCI 5: Kecilkan sedikit agar ada ruang lega untuk Footer */
+                height: 190mm !important;
                 width: 100% !important;
                 overflow: hidden !important;
                 margin: 0 !important;
@@ -137,10 +179,8 @@
                 position: relative !important;
             }
 
-            /* MATIKAN KANVAS ASLI, NYALAKAN GAMBAR CETAKAN */
-            canvas.drawing-board {
-                display: none !important;
-            }
+            canvas.drawing-board { display: none !important; }
+            .pasted-image-container { display: none !important; } /* Hilangkan elemen asli, karena sdh digabung ke fallback */
 
             .print-fallback {
                 display: block !important;
@@ -162,10 +202,16 @@
 </head>
 <body class="bg-gray-100 py-10 text-gray-800 font-sans">
 
-    <!-- TOOLBAR (Hanya tampil di web, hilang saat print) -->
+    <!-- TOOLBAR -->
     <div class="max-w-[210mm] mx-auto mb-6 bg-white rounded-xl shadow-md p-4 flex flex-wrap items-center justify-between gap-4 no-print border border-gray-200 sticky top-4 z-50">
         
         <div class="flex items-center gap-2 flex-wrap">
+            <!-- ALAT KURSOR (Untuk geser/resize gambar) -->
+            <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="pointer" title="Kursor (Geser Gambar)">
+                <i class="fas fa-mouse-pointer"></i>
+            </button>
+            <div class="w-px h-8 bg-gray-300 mx-1"></div>
+
             <button class="tool-btn active w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors" id="pen" title="Pulpen">
                 <i class="fas fa-pen"></i>
             </button>
@@ -250,12 +296,12 @@
                 <tbody>
                     <tr>
                         <td class="pb-6">
-                            <!-- Canvas Container (Tinggi 200mm) -->
-                            <div class="canvas-container w-full border-2 border-dashed border-gray-300 rounded-xl bg-white relative" style="height: 200mm;">
-                                <!-- Image Fallback untuk cetak PDF (Akan selalu diperbarui tiap angkat pulpen) -->
+                            <!-- Canvas Container (Tinggi 190mm) -->
+                            <div class="canvas-container w-full border-2 border-dashed border-gray-300 rounded-xl bg-white relative" style="height: 190mm;">
+                                <!-- Kanvas Utama (Z-index 10) -->
+                                <canvas class="drawing-board w-full h-full cursor-crosshair touch-none block absolute top-0 left-0" style="z-index: 10;"></canvas>
+                                <!-- Image Fallback untuk cetak PDF -->
                                 <img class="print-fallback" alt="" />
-                                <!-- Kanvas Utama -->
-                                <canvas class="drawing-board w-full h-full cursor-crosshair touch-none block absolute top-0 left-0"></canvas>
                             </div>
                         </td>
                     </tr>
@@ -308,24 +354,217 @@
         let prevMouseX, prevMouseY, snapshot;
         let currentCanvas = null;
         let currentCtx = null;
+        let lastHoveredContainer = null;
 
-        // --- SISTEM AUTO-SYNC KE GAMBAR CETAK ---
-        // Fungsi ini langsung menyimpan hasil gambar setiap kita ngangkat pulpen.
-        // Jadinya pas Ctrl+P ditekan, gambarnya udah 100% jadi. Gak ada lagi acara telat ngerender.
+        // Mendeteksi halaman mana yang sedang dilihat/dikerjakan pengguna
+        document.addEventListener('mouseover', (e) => {
+            const container = e.target.closest('.canvas-container');
+            if(container) lastHoveredContainer = container;
+        });
+
+        // --- SISTEM AUTO-SYNC KE GAMBAR CETAK (MENGGABUNGKAN GAMBAR PASTE + CORETAN) ---
         const syncCanvasToImage = (canvas) => {
             const container = canvas.closest('.canvas-container');
             if(!container) return;
-            const img = container.querySelector('.print-fallback');
-            if(img) {
-                // Konversi langsung jadi JPEG
-                img.src = canvas.toDataURL('image/jpeg', 1.0);
-            }
+            const fallbackImg = container.querySelector('.print-fallback');
+            if(!fallbackImg) return;
+
+            // Buat kanvas sementara di balik layar
+            const tempCanvas = document.createElement('canvas');
+            const ctx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            // Beri background putih murni
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            // Hitung rasio untuk posisi gambar yang di-paste (Resolusi Internal vs Resolusi Layar)
+            const rect = canvas.getBoundingClientRect();
+            const displayW = rect.width || 1;
+            const displayH = rect.height || 1;
+            const scaleX = canvas.width / displayW;
+            const scaleY = canvas.height / displayH;
+
+            // 1. Gambar semua elemen hasil paste (Berada di lapisan paling bawah)
+            const pastedImages = container.querySelectorAll('.pasted-image-container');
+            pastedImages.forEach(imgContainer => {
+                const imgElement = imgContainer.querySelector('img');
+                const left = imgContainer.offsetLeft * scaleX;
+                const top = imgContainer.offsetTop * scaleY;
+                const width = imgContainer.offsetWidth * scaleX;
+                const height = imgContainer.offsetHeight * scaleY;
+                ctx.drawImage(imgElement, left, top, width, height);
+            });
+
+            // 2. Gambar coretan (Berada di atas/melapisi gambar)
+            ctx.drawImage(canvas, 0, 0);
+
+            // Set sumber fallback img PDF
+            fallbackImg.src = tempCanvas.toDataURL('image/png', 1.0);
         };
 
         printBtn.addEventListener("click", () => {
-            // Karena gambar udah disinkron tiap ngangkat pulpen, kita tinggal panggil print!
+            // Sinkronisasi paksa semua kanvas sesaat sebelum diprint agar aman
+            document.querySelectorAll('.drawing-board').forEach(cvs => syncCanvasToImage(cvs));
             window.print(); 
         });
+
+        // --- FITUR PASTE GAMBAR (CTRL+V) ---
+        window.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        createPastedImage(event.target.result);
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
+        function createPastedImage(src) {
+            const container = lastHoveredContainer || document.querySelector('.canvas-container');
+            if(!container) return;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'pasted-image-container';
+            
+            const img = document.createElement('img');
+            img.src = src;
+            wrapper.appendChild(img);
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            wrapper.appendChild(resizeHandle);
+
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-img-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.onclick = () => {
+                wrapper.remove();
+                syncCanvasToImage(container.querySelector('.drawing-board'));
+            };
+            wrapper.appendChild(deleteBtn);
+
+            // Sisipkan gambar tepat SEBELUM kanvas agar tidak menutupi area coretan
+            const drawingBoard = container.querySelector('.drawing-board');
+            container.insertBefore(wrapper, drawingBoard);
+
+            img.onload = () => {
+                const startWidth = Math.min(img.naturalWidth, 400); // Max ukuran awal 400px
+                const ratio = img.naturalHeight / img.naturalWidth;
+                wrapper.style.width = startWidth + 'px';
+                wrapper.style.height = (startWidth * ratio) + 'px';
+                
+                syncCanvasToImage(drawingBoard);
+            };
+
+            makeDraggableAndResizable(wrapper, resizeHandle, container, drawingBoard);
+            
+            // Otomatis pindah ke mode Kursor agar langsung bisa diedit
+            document.getElementById('pointer').click();
+        }
+
+        function makeDraggableAndResizable(wrapper, handle, container, canvas) {
+            let isDragging = false;
+            let isResizing = false;
+            let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+            const activateImg = () => {
+                document.querySelectorAll('.pasted-image-container').forEach(el => el.classList.remove('active-img'));
+                wrapper.classList.add('active-img');
+            };
+
+            wrapper.addEventListener('mousedown', (e) => {
+                if(e.target === handle || e.target.closest('.delete-img-btn')) return;
+                activateImg();
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = wrapper.offsetLeft;
+                startTop = wrapper.offsetTop;
+                e.preventDefault(); 
+            });
+
+            handle.addEventListener('mousedown', (e) => {
+                activateImg();
+                isResizing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startWidth = wrapper.offsetWidth;
+                startHeight = wrapper.offsetHeight;
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    let newLeft = startLeft + (e.clientX - startX);
+                    let newTop = startTop + (e.clientY - startY);
+                    wrapper.style.left = newLeft + 'px';
+                    wrapper.style.top = newTop + 'px';
+                } else if (isResizing) {
+                    const newWidth = Math.max(50, startWidth + (e.clientX - startX));
+                    const newHeight = Math.max(50, startHeight + (e.clientY - startY));
+                    wrapper.style.width = newWidth + 'px';
+                    wrapper.style.height = newHeight + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging || isResizing) {
+                    isDragging = false;
+                    isResizing = false;
+                    syncCanvasToImage(canvas);
+                }
+            });
+
+            // Touch Support untuk HP/Tablet
+            wrapper.addEventListener('touchstart', (e) => {
+                 if(e.target === handle || e.target.closest('.delete-img-btn')) return;
+                 activateImg();
+                 isDragging = true;
+                 const touch = e.touches[0];
+                 startX = touch.clientX;
+                 startY = touch.clientY;
+                 startLeft = wrapper.offsetLeft;
+                 startTop = wrapper.offsetTop;
+            });
+            handle.addEventListener('touchstart', (e) => {
+                 activateImg();
+                 isResizing = true;
+                 const touch = e.touches[0];
+                 startX = touch.clientX;
+                 startY = touch.clientY;
+                 startWidth = wrapper.offsetWidth;
+                 startHeight = wrapper.offsetHeight;
+                 e.stopPropagation();
+            });
+            document.addEventListener('touchmove', (e) => {
+                 if(isDragging) {
+                     const touch = e.touches[0];
+                     wrapper.style.left = startLeft + (touch.clientX - startX) + 'px';
+                     wrapper.style.top = startTop + (touch.clientY - startY) + 'px';
+                     e.preventDefault(); 
+                 } else if (isResizing) {
+                     const touch = e.touches[0];
+                     wrapper.style.width = Math.max(50, startWidth + (touch.clientX - startX)) + 'px';
+                     wrapper.style.height = Math.max(50, startHeight + (touch.clientY - startY)) + 'px';
+                     e.preventDefault();
+                 }
+            }, {passive: false});
+            document.addEventListener('touchend', () => {
+                 if (isDragging || isResizing) {
+                    isDragging = false;
+                    isResizing = false;
+                    syncCanvasToImage(canvas);
+                }
+            });
+        }
 
         const getMousePos = (canvas, evt) => {
             const rect = canvas.getBoundingClientRect();
@@ -351,7 +590,7 @@
             const rect = canvas.parentElement.getBoundingClientRect();
             
             const w = rect.width || 642; 
-            const h = rect.height || 756;
+            const h = rect.height || 718; // Approx for 190mm
 
             const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
             
@@ -359,8 +598,8 @@
             canvas.height = h * dpr;
             ctx.scale(dpr, dpr);
             
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, w, h);
+            // Kanvas harus transparan agar gambar yang di-paste di belakangnya bisa terlihat
+            ctx.clearRect(0, 0, w, h);
 
             canvas.onmousedown = startDraw;
             canvas.onmousemove = drawing;
@@ -371,7 +610,6 @@
             canvas.ontouchmove = (e) => { e.preventDefault(); drawing(e); };
             canvas.ontouchend = stopDraw;
 
-            // Simpan gambar kanvas kosong putih ini untuk PDF
             syncCanvasToImage(canvas);
         };
 
@@ -390,6 +628,10 @@
             const newInputs = newPage.querySelectorAll("input");
             newInputs.forEach((input, index) => { input.value = oldInputs[index].value; });
 
+            // Bersihkan gambar paste yang terbawa dari clone
+            const oldImages = newPage.querySelectorAll(".pasted-image-container");
+            oldImages.forEach(img => img.remove());
+
             const newCanvas = newPage.querySelector(".drawing-board");
             
             pagesContainer.appendChild(newPage);
@@ -402,6 +644,18 @@
                 document.querySelector(".tool-btn.active").classList.remove("active");
                 btn.classList.add("active");
                 selectedTool = btn.id;
+
+                // LOGIKA TOOL KURSOR
+                const canvases = document.querySelectorAll(".drawing-board");
+                if (selectedTool === 'pointer') {
+                    // Matikan klik di kanvas supaya klik tembus ke gambar di belakangnya
+                    canvases.forEach(c => c.style.pointerEvents = 'none');
+                } else {
+                    // Nyalakan klik di kanvas untuk menggambar, gambar jadi ngga bisa diklik
+                    canvases.forEach(c => c.style.pointerEvents = 'auto');
+                    // Hilangkan efek aktif (border biru) pada semua gambar
+                    document.querySelectorAll('.pasted-image-container').forEach(el => el.classList.remove('active-img'));
+                }
             });
         });
 
@@ -410,14 +664,26 @@
                 document.querySelector(".color-btn.active").classList.remove("active");
                 btn.classList.add("active");
                 selectedColor = window.getComputedStyle(btn).getPropertyValue("background-color");
+                
+                // Kalau klik warna, otomatis pindah ke pulpen
+                if(selectedTool === 'pointer' || selectedTool === 'eraser') {
+                    document.getElementById('pen').click();
+                }
             });
         });
 
         clearBtn.addEventListener("click", () => {
-            if(confirm("Hapus semua coretan di halaman?")) {
+            if(confirm("Hapus semua coretan dan gambar di seluruh halaman?")) {
                 const allCanvases = document.querySelectorAll(".drawing-board");
                 allCanvases.forEach(cvs => { 
-                    setupCanvas(cvs); 
+                    const ctx = cvs.getContext("2d");
+                    ctx.clearRect(0, 0, cvs.width, cvs.height);
+                    
+                    // Hapus gambar yang dipaste di container ini
+                    const container = cvs.closest('.canvas-container');
+                    container.querySelectorAll('.pasted-image-container').forEach(img => img.remove());
+
+                    syncCanvasToImage(cvs); 
                 });
             }
         });
@@ -445,6 +711,7 @@
         }
 
         const startDraw = (e) => {
+            if(selectedTool === 'pointer') return; // Jaga-jaga
             currentCanvas = e.target;
             currentCtx = currentCanvas.getContext("2d");
             isDrawing = true;
@@ -455,9 +722,18 @@
             
             currentCtx.beginPath();
             currentCtx.moveTo(pos.x, pos.y);
-            currentCtx.lineWidth = selectedTool === "eraser" ? 30 : brushWidth;
-            currentCtx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
-            currentCtx.fillStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+            // Mode penghapus sekarang memakai 'destination-out' agar gambar di belakangnya tetap kelihatan
+            if(selectedTool === "eraser") {
+                currentCtx.globalCompositeOperation = "destination-out";
+                currentCtx.lineWidth = 30;
+                currentCtx.strokeStyle = "rgba(0,0,0,1)"; 
+            } else {
+                currentCtx.globalCompositeOperation = "source-over";
+                currentCtx.lineWidth = brushWidth;
+                currentCtx.strokeStyle = selectedColor;
+                currentCtx.fillStyle = selectedColor;
+            }
+            
             currentCtx.lineCap = "round"; 
             currentCtx.lineJoin = "round";
             
@@ -465,7 +741,7 @@
         }
 
         const drawing = (e) => {
-            if(!isDrawing || !currentCtx || !currentCanvas) return;
+            if(!isDrawing || !currentCtx || !currentCanvas || selectedTool === 'pointer') return;
             
             const pos = getMousePos(currentCanvas, e);
 
@@ -490,8 +766,7 @@
         const stopDraw = () => { 
             if (isDrawing) {
                 isDrawing = false;
-                // KUNCI UTAMANYA DISINI: 
-                // Begitu lepas klik/sentuhan, langsung simpan gambar terbaru!
+                if(currentCtx) currentCtx.globalCompositeOperation = "source-over"; // reset composite
                 if (currentCanvas) {
                     syncCanvasToImage(currentCanvas);
                 }
