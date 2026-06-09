@@ -80,7 +80,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 50; /* Pastikan selalu paling atas saat diprint */
+            z-index: 50;
         }
 
         /* --- CSS UNTUK GAMBAR YANG DI-PASTE --- */
@@ -97,13 +97,13 @@
         }
         
         .pasted-image-container:hover, .pasted-image-container.active-img {
-            border-color: #2563eb; /* Border biru saat di-hover/aktif */
+            border-color: #2563eb; 
         }
 
         .pasted-image-container img {
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Cegah drag bawaan browser */
+            pointer-events: none; 
             display: block;
         }
 
@@ -180,7 +180,7 @@
             }
 
             canvas.drawing-board { display: none !important; }
-            .pasted-image-container { display: none !important; } /* Hilangkan elemen asli, karena sdh digabung ke fallback */
+            .pasted-image-container { display: none !important; }
 
             .print-fallback {
                 display: block !important;
@@ -194,9 +194,15 @@
             color: white;
             border-color: #d81b60;
         }
+        
         .color-btn.active {
             transform: scale(1.2);
             box-shadow: 0 0 0 2px white, 0 0 0 4px #d81b60;
+        }
+
+        /* Animasi ringkas untuk undo button */
+        .action-btn:active {
+            transform: scale(0.90);
         }
     </style>
 </head>
@@ -206,19 +212,22 @@
     <div class="max-w-[210mm] mx-auto mb-6 bg-white rounded-xl shadow-md p-4 flex flex-wrap items-center justify-between gap-4 no-print border border-gray-200 sticky top-4 z-50">
         
         <div class="flex items-center gap-2 flex-wrap">
-            <!-- ALAT KURSOR (Untuk geser/resize gambar) -->
+            <!-- ALAT KURSOR -->
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="pointer" title="Kursor (Geser Gambar)">
                 <i class="fas fa-mouse-pointer"></i>
             </button>
             <div class="w-px h-8 bg-gray-300 mx-1"></div>
 
+            <!-- ALAT GAMBAR -->
             <button class="tool-btn active w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors" id="pen" title="Pulpen">
                 <i class="fas fa-pen"></i>
             </button>
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors" id="eraser" title="Penghapus">
                 <i class="fas fa-eraser"></i>
             </button>
+            
             <div class="w-px h-8 bg-gray-300 mx-1"></div>
+            
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors" id="line" title="Garis Lurus">
                 <i class="fas fa-minus transform -rotate-45"></i>
             </button>
@@ -231,8 +240,14 @@
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors" id="triangle" title="Segitiga">
                 <i class="fas fa-caret-up text-xl transform translate-y-0.5"></i>
             </button>
+
             <div class="w-px h-8 bg-gray-300 mx-1"></div>
-            <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors" id="clear-canvas" title="Bersihkan Kertas">
+            
+            <!-- TOMBOL UNDO DAN CLEAR (TOMBOL AKSI) -->
+            <button class="action-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-all" id="undo-btn" title="Undo / Batal (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="action-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-50 text-red-500 transition-all" id="clear-canvas" title="Bersihkan Kertas">
                 <i class="fas fa-trash-alt"></i>
             </button>
 
@@ -347,6 +362,7 @@
         const toolBtns = document.querySelectorAll(".tool-btn");
         const colorBtns = document.querySelectorAll(".color-btn");
         const clearBtn = document.getElementById("clear-canvas");
+        const undoBtn = document.getElementById("undo-btn");
         const printBtn = document.getElementById("btn-print");
         const addPageBtn = document.getElementById("add-page-btn");
         const pagesContainer = document.getElementById("pages-container");
@@ -359,6 +375,9 @@
         let currentCanvas = null;
         let currentCtx = null;
         let lastHoveredContainer = null;
+        
+        // --- KONFIGURASI UNDO ---
+        const MAX_UNDO_STEPS = 15; // Batas memori undo supaya browser tidak lag
 
         // Mendeteksi halaman mana yang sedang dilihat/dikerjakan pengguna
         document.addEventListener('mouseover', (e) => {
@@ -366,31 +385,27 @@
             if(container) lastHoveredContainer = container;
         });
 
-        // --- SISTEM AUTO-SYNC KE GAMBAR CETAK (MENGGABUNGKAN GAMBAR PASTE + CORETAN) ---
+        // --- SISTEM AUTO-SYNC KE GAMBAR CETAK ---
         const syncCanvasToImage = (canvas) => {
             const container = canvas.closest('.canvas-container');
             if(!container) return;
             const fallbackImg = container.querySelector('.print-fallback');
             if(!fallbackImg) return;
 
-            // Buat kanvas sementara di balik layar
             const tempCanvas = document.createElement('canvas');
             const ctx = tempCanvas.getContext('2d');
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
 
-            // Beri background putih murni
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-            // Hitung rasio untuk posisi gambar yang di-paste (Resolusi Internal vs Resolusi Layar)
             const rect = canvas.getBoundingClientRect();
             const displayW = rect.width || 1;
             const displayH = rect.height || 1;
             const scaleX = canvas.width / displayW;
             const scaleY = canvas.height / displayH;
 
-            // 1. Gambar semua elemen hasil paste (Berada di lapisan paling bawah)
             const pastedImages = container.querySelectorAll('.pasted-image-container');
             pastedImages.forEach(imgContainer => {
                 const imgElement = imgContainer.querySelector('img');
@@ -401,15 +416,11 @@
                 ctx.drawImage(imgElement, left, top, width, height);
             });
 
-            // 2. Gambar coretan (Berada di atas/melapisi gambar)
             ctx.drawImage(canvas, 0, 0);
-
-            // Set sumber fallback img PDF
             fallbackImg.src = tempCanvas.toDataURL('image/png', 1.0);
         };
 
         printBtn.addEventListener("click", () => {
-            // Sinkronisasi paksa semua kanvas sesaat sebelum diprint agar aman
             document.querySelectorAll('.drawing-board').forEach(cvs => syncCanvasToImage(cvs));
             window.print(); 
         });
@@ -454,12 +465,11 @@
             };
             wrapper.appendChild(deleteBtn);
 
-            // Sisipkan gambar tepat SEBELUM kanvas agar tidak menutupi area coretan
             const drawingBoard = container.querySelector('.drawing-board');
             container.insertBefore(wrapper, drawingBoard);
 
             img.onload = () => {
-                const startWidth = Math.min(img.naturalWidth, 400); // Max ukuran awal 400px
+                const startWidth = Math.min(img.naturalWidth, 400); 
                 const ratio = img.naturalHeight / img.naturalWidth;
                 wrapper.style.width = startWidth + 'px';
                 wrapper.style.height = (startWidth * ratio) + 'px';
@@ -468,8 +478,6 @@
             };
 
             makeDraggableAndResizable(wrapper, resizeHandle, container, drawingBoard);
-            
-            // Otomatis pindah ke mode Kursor agar langsung bisa diedit
             document.getElementById('pointer').click();
         }
 
@@ -527,8 +535,8 @@
                 }
             });
 
-            // Touch Support untuk HP/Tablet
-            wrapper.addEventListener('touchstart', (e) => {
+            // Touch Support
+            wrapper.addEventListener('touchstart', (e) => { 
                  if(e.target === handle || e.target.closest('.delete-img-btn')) return;
                  activateImg();
                  isDragging = true;
@@ -538,7 +546,7 @@
                  startLeft = wrapper.offsetLeft;
                  startTop = wrapper.offsetTop;
             });
-            handle.addEventListener('touchstart', (e) => {
+            handle.addEventListener('touchstart', (e) => { 
                  activateImg();
                  isResizing = true;
                  const touch = e.touches[0];
@@ -548,7 +556,7 @@
                  startHeight = wrapper.offsetHeight;
                  e.stopPropagation();
             });
-            document.addEventListener('touchmove', (e) => {
+            document.addEventListener('touchmove', (e) => { 
                  if(isDragging) {
                      const touch = e.touches[0];
                      wrapper.style.left = startLeft + (touch.clientX - startX) + 'px';
@@ -561,7 +569,7 @@
                      e.preventDefault();
                  }
             }, {passive: false});
-            document.addEventListener('touchend', () => {
+            document.addEventListener('touchend', () => { 
                  if (isDragging || isResizing) {
                     isDragging = false;
                     isResizing = false;
@@ -589,12 +597,57 @@
             };
         };
 
+        // --- SISTEM UNDO (MENYIMPAN STATE KANVAS) ---
+        const saveCanvasState = (canvas) => {
+            if (!canvas.undoStack) canvas.undoStack = [];
+            const ctx = canvas.getContext("2d");
+            // Ambil snapshot murni dari kanvas saat ini
+            const state = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            canvas.undoStack.push(state);
+            
+            // Hapus memori paling lama jika melebihi batas (agar tidak membebani memori)
+            if (canvas.undoStack.length > MAX_UNDO_STEPS) {
+                canvas.undoStack.shift(); 
+            }
+        };
+
+        // Event Listener untuk Tombol Undo
+        undoBtn.addEventListener('click', performUndo);
+
+        // Shortcut Keyboard Ctrl + Z untuk Undo
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                performUndo();
+            }
+        });
+
+        function performUndo() {
+            // Cari kontainer yang sedang dilihat/aktif
+            const container = lastHoveredContainer || document.querySelector('.canvas-container');
+            if(!container) return;
+            
+            const canvas = container.querySelector('.drawing-board');
+            
+            if (canvas && canvas.undoStack && canvas.undoStack.length > 0) {
+                const ctx = canvas.getContext("2d");
+                // Tarik memori terakhir dari stack
+                const prevState = canvas.undoStack.pop();
+                // Tempelkan memori tersebut ke kanvas
+                ctx.putImageData(prevState, 0, 0);
+                
+                // Perbarui hasil gabungan (print)
+                syncCanvasToImage(canvas);
+            }
+        }
+
         const setupCanvas = (canvas) => {
             const ctx = canvas.getContext("2d", { willReadFrequently: true });
             const rect = canvas.parentElement.getBoundingClientRect();
             
             const w = rect.width || 642; 
-            const h = rect.height || 718; // Approx for 190mm
+            const h = rect.height || 718; 
 
             const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
             
@@ -602,8 +655,10 @@
             canvas.height = h * dpr;
             ctx.scale(dpr, dpr);
             
-            // Kanvas harus transparan agar gambar yang di-paste di belakangnya bisa terlihat
             ctx.clearRect(0, 0, w, h);
+
+            // Inisialisasi tumpukan memori undo untuk kanvas ini
+            canvas.undoStack = [];
 
             canvas.onmousedown = startDraw;
             canvas.onmousemove = drawing;
@@ -632,7 +687,6 @@
             const newInputs = newPage.querySelectorAll("input");
             newInputs.forEach((input, index) => { input.value = oldInputs[index].value; });
 
-            // Bersihkan gambar paste yang terbawa dari clone
             const oldImages = newPage.querySelectorAll(".pasted-image-container");
             oldImages.forEach(img => img.remove());
 
@@ -649,15 +703,11 @@
                 btn.classList.add("active");
                 selectedTool = btn.id;
 
-                // LOGIKA TOOL KURSOR
                 const canvases = document.querySelectorAll(".drawing-board");
                 if (selectedTool === 'pointer') {
-                    // Matikan klik di kanvas supaya klik tembus ke gambar di belakangnya
                     canvases.forEach(c => c.style.pointerEvents = 'none');
                 } else {
-                    // Nyalakan klik di kanvas untuk menggambar, gambar jadi ngga bisa diklik
                     canvases.forEach(c => c.style.pointerEvents = 'auto');
-                    // Hilangkan efek aktif (border biru) pada semua gambar
                     document.querySelectorAll('.pasted-image-container').forEach(el => el.classList.remove('active-img'));
                 }
             });
@@ -669,7 +719,6 @@
                 btn.classList.add("active");
                 selectedColor = window.getComputedStyle(btn).getPropertyValue("background-color");
                 
-                // Kalau klik warna, otomatis pindah ke pulpen
                 if(selectedTool === 'pointer' || selectedTool === 'eraser') {
                     document.getElementById('pen').click();
                 }
@@ -680,10 +729,12 @@
             if(confirm("Hapus semua coretan dan gambar di seluruh halaman?")) {
                 const allCanvases = document.querySelectorAll(".drawing-board");
                 allCanvases.forEach(cvs => { 
+                    // Simpan state sebelum dihapus, supaya tindakan 'clear' ini juga bisa di-undo!
+                    saveCanvasState(cvs);
+
                     const ctx = cvs.getContext("2d");
                     ctx.clearRect(0, 0, cvs.width, cvs.height);
                     
-                    // Hapus gambar yang dipaste di container ini
                     const container = cvs.closest('.canvas-container');
                     container.querySelectorAll('.pasted-image-container').forEach(img => img.remove());
 
@@ -715,9 +766,13 @@
         }
 
         const startDraw = (e) => {
-            if(selectedTool === 'pointer') return; // Jaga-jaga
+            if(selectedTool === 'pointer') return; 
             currentCanvas = e.target;
             currentCtx = currentCanvas.getContext("2d");
+
+            // SIMPAN STATE TEPAT SEBELUM CORETAN BARU DIMULAI
+            saveCanvasState(currentCanvas);
+
             isDrawing = true;
             
             const pos = getMousePos(currentCanvas, e);
@@ -726,7 +781,7 @@
             
             currentCtx.beginPath();
             currentCtx.moveTo(pos.x, pos.y);
-            // Mode penghapus sekarang memakai 'destination-out' agar gambar di belakangnya tetap kelihatan
+            
             if(selectedTool === "eraser") {
                 currentCtx.globalCompositeOperation = "destination-out";
                 currentCtx.lineWidth = 30;
@@ -741,6 +796,7 @@
             currentCtx.lineCap = "round"; 
             currentCtx.lineJoin = "round";
             
+            // snapshot ini digunakan untuk preview bentuk saat di drag (bukan untuk memori undo)
             snapshot = currentCtx.getImageData(0, 0, currentCanvas.width, currentCanvas.height);
         }
 
@@ -768,9 +824,9 @@
         }
 
         const stopDraw = () => { 
-            if (isDrawing) {
+             if (isDrawing) {
                 isDrawing = false;
-                if(currentCtx) currentCtx.globalCompositeOperation = "source-over"; // reset composite
+                if(currentCtx) currentCtx.globalCompositeOperation = "source-over"; 
                 if (currentCanvas) {
                     syncCanvasToImage(currentCanvas);
                 }
