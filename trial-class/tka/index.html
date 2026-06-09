@@ -259,6 +259,11 @@
             transform: scale(1.2);
             box-shadow: 0 0 0 2px white, 0 0 0 4px #d81b60;
         }
+
+        /* Animasi ringkas untuk undo button */
+        .action-btn:active {
+            transform: scale(0.90);
+        }
     </style>
 </head>
 <body class="py-10 text-gray-800 font-sans">
@@ -291,7 +296,12 @@
                 <i class="fas fa-caret-up text-xl transform translate-y-0.5"></i>
             </button>
             <div class="w-px h-8 bg-gray-300 mx-1"></div>
-            <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors" id="clear-canvas" title="Bersihkan Coretan">
+            
+            <!-- TOMBOL UNDO DAN CLEAR -->
+            <button class="action-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-all" id="undo-btn" title="Undo / Batal (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="action-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors" id="clear-canvas" title="Bersihkan Coretan">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
@@ -801,6 +811,10 @@
         let currentCanvas = null;
         let currentCtx = null;
         let lastHoveredContainer = null;
+        
+        // --- KONFIGURASI UNDO ---
+        const MAX_UNDO_STEPS = 15; 
+        const undoBtn = document.getElementById("undo-btn");
 
         // Mendeteksi halaman mana yang sedang dilihat/dikerjakan pengguna
         document.addEventListener('mouseover', (e) => {
@@ -808,7 +822,7 @@
             if(container) lastHoveredContainer = container;
         });
 
-        // --- SISTEM AUTO-SYNC KE GAMBAR CETAK (MENGGABUNGKAN GAMBAR PASTE + CORETAN) ---
+        // --- SISTEM AUTO-SYNC KE GAMBAR CETAK ---
         const syncCanvasToImage = (canvas) => {
             if (canvas.width === 0 || canvas.height === 0) return;
 
@@ -847,7 +861,7 @@
             fallbackImg.src = tempCanvas.toDataURL('image/png', 1.0);
         };
 
-        printBtn = document.getElementById("btn-print");
+        const printBtn = document.getElementById("btn-print");
         printBtn.addEventListener("click", () => {
             document.querySelectorAll('.drawing-board').forEach(cvs => syncCanvasToImage(cvs));
             window.print(); 
@@ -999,9 +1013,67 @@
             };
         };
 
+        // --- SISTEM UNDO ---
+        const saveCanvasState = (canvas) => {
+            if (!canvas.undoStack) canvas.undoStack = [];
+            const ctx = canvas.getContext("2d");
+            // Menyimpan pixel mentah
+            const state = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.undoStack.push(state);
+            
+            if (canvas.undoStack.length > MAX_UNDO_STEPS) {
+                canvas.undoStack.shift(); 
+            }
+        };
+
+        const performUndo = () => {
+            // Karena ukuran halaman dinamis, pastikan kita meng-undo kanvas yang tepat
+            let container = lastHoveredContainer;
+            if (!container) {
+                // Jatuh kembali ke deteksi viewport jika tidak ada hover
+                const containers = document.querySelectorAll('.canvas-container');
+                for (let c of containers) {
+                    const rect = c.getBoundingClientRect();
+                    if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+                        container = c; break;
+                    }
+                }
+                if (!container) container = document.querySelector('.canvas-container');
+            }
+
+            if(!container) return;
+            
+            const canvas = container.querySelector('.drawing-board');
+            if (canvas && canvas.undoStack && canvas.undoStack.length > 0) {
+                const ctx = canvas.getContext("2d");
+                const prevState = canvas.undoStack.pop();
+                
+                // Mencegah error putImageData jika resolusi kanvas tiba-tiba berubah gara-gara resize
+                if (prevState.width === canvas.width && prevState.height === canvas.height) {
+                    ctx.putImageData(prevState, 0, 0);
+                    syncCanvasToImage(canvas);
+                } else {
+                    canvas.undoStack = []; // Hapus stack karena ukuran sudah tidak kompatibel
+                }
+            }
+        };
+
+        if (undoBtn) undoBtn.addEventListener('click', performUndo);
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                performUndo();
+            }
+        });
+
+        // --- SETUP KANVAS ---
         const setupCanvas = (canvas) => {
             const ctx = canvas.getContext("2d", { willReadFrequently: true });
             
+            // Inisialisasi laci memori Undo
+            canvas.undoStack = [];
+
             const handleResize = () => {
                 const rect = canvas.parentElement.getBoundingClientRect();
                 const w = rect.width;
@@ -1034,6 +1106,9 @@
                         ctx.drawImage(tempCanvas, 0, 0);
                         ctx.restore();
                     }
+
+                    // Reset tumpukan undo karena resolusi baru tidak akan cocok dengan imageData yang lama
+                    canvas.undoStack = [];
 
                     syncCanvasToImage(canvas);
                 }
@@ -1099,6 +1174,9 @@
             if(confirm("Hapus semua coretan dan gambar di seluruh halaman?")) {
                 const allCanvases = document.querySelectorAll(".drawing-board");
                 allCanvases.forEach(cvs => { 
+                    // Simpan status sebelum di bersihkan (agar bisa di-undo)
+                    saveCanvasState(cvs);
+
                     const ctx = cvs.getContext("2d");
                     ctx.clearRect(0, 0, cvs.width, cvs.height);
                     
@@ -1139,6 +1217,10 @@
             if (currentCanvas.width === 0 || currentCanvas.height === 0) return;
             
             currentCtx = currentCanvas.getContext("2d");
+
+            // SIMPAN STATE TEPAT SEBELUM CORETAN BARU DIMULAI
+            saveCanvasState(currentCanvas);
+
             isDrawing = true;
             
             const pos = getMousePos(currentCanvas, e);
