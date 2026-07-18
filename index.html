@@ -258,6 +258,7 @@
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
+    
     <!-- TOOLBAR VERTIKAL KIRI (2 KOLOM) -->
     <div class="fixed left-4 top-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-3 no-print border border-gray-200 z-50 max-h-[95vh] overflow-y-auto w-28 items-center">
         
@@ -434,7 +435,7 @@
                                 <!-- Canvas Container (Tinggi 190mm) -->
                                 <div class="canvas-container w-full border-2 border-dashed border-gray-300 rounded-xl bg-white relative" style="height: 190mm;">
                                     <!-- Kanvas Utama (Z-index 10) -->
-                                    <canvas class="drawing-board w-full h-full cursor-crosshair touch-none block absolute top-0 left-0" style="z-index: 10; touch-action: none;"></canvas>
+                                    <canvas class="drawing-board w-full h-full touch-none block absolute top-0 left-0" style="z-index: 10; touch-action: none;"></canvas>
                                     <!-- Image Fallback untuk cetak PDF -->
                                     <img class="print-fallback" alt="" />
                                 </div>
@@ -495,14 +496,14 @@
 
         let isDrawing = false;
         let selectedTool = "pen";
-        let brushWidth = 3; // Ketebalan default
+        let brushWidth = 3; 
         let selectedColor = "#000000";
         let prevMouseX, prevMouseY, snapshot;
         let currentCanvas = null;
         let currentCtx = null;
         let lastHoveredContainer = null;
         
-        const MAX_UNDO_STEPS = 15; // Batas memori undo
+        const MAX_UNDO_STEPS = 15; 
 
         // Variabel Grid/Tabel Melayang
         let currentGridRows = 3;
@@ -510,6 +511,30 @@
         let activeGridPreview = null;
         let gridPreviewPos = { x: 0, y: 0 };
         let previewTargetCanvas = null;
+
+        // Fungsi untuk meng-update kursor di semua kanvas
+        function updateCursor() {
+            const canvases = document.querySelectorAll(".drawing-board");
+            let cursorStyle = 'crosshair';
+
+            if (selectedTool === 'pointer') {
+                cursorStyle = 'default';
+            } else if (selectedTool === 'eraser') {
+                // Kursor Penghapus (Lingkaran dengan titik sentuh di tengah = 16 16)
+                cursorStyle = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='16' cy='16' r='14' fill='white' stroke='black' stroke-width='2' stroke-dasharray='4,4'/%3E%3C/svg%3E") 16 16, crosshair`;
+            } else if (selectedTool === 'pen') {
+                // Kursor Pulpen/Pensil Pink (titik sentuh di ujung bawah kiri = 3 21)
+                cursorStyle = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23d81b60' stroke='white' stroke-width='1'/%3E%3C/svg%3E") 3 21, crosshair`;
+            } else {
+                // Shapes (Bentuk) dan Stempel Grid tetap pakai tanda plus (+) biar gampang bidik koordinat awal
+                cursorStyle = 'crosshair';
+            }
+
+            canvases.forEach(c => {
+                // Mengubah gaya kursor CSS kanvas agar memaksa OS tetap menampilkan ikon ini saat Wacom menempel
+                c.style.cursor = cursorStyle;
+            });
+        }
 
         // Mengatur Ketebalan Garis dari Dropdown
         brushSizeSelect.addEventListener("change", (e) => {
@@ -521,17 +546,14 @@
             if(container) lastHoveredContainer = container;
         });
 
-        // Tombol Trash
         clearBtn.addEventListener("click", () => {
             clearModal.classList.remove("hidden");
         });
 
-        // Batal Hapus
         cancelClear.addEventListener("click", () => {
             clearModal.classList.add("hidden");
         });
 
-        // Setuju Hapus
         confirmClearAction.addEventListener("click", () => {
             clearModal.classList.add("hidden");
             const allCanvases = document.querySelectorAll(".drawing-board");
@@ -651,7 +673,6 @@
                 wrapper.classList.add('active-img');
             };
 
-            // Menggunakan Pointer Events untuk Drag & Drop agar support Wacom
             wrapper.addEventListener('pointerdown', (e) => {
                 if(e.target === handle || e.target.closest('.delete-img-btn')) return;
                 activateImg();
@@ -704,7 +725,6 @@
             let clientX = evt.clientX;
             let clientY = evt.clientY;
 
-            // Support touch fallback just in case
             if (evt.touches && evt.touches.length > 0) {
                 clientX = evt.touches[0].clientX;
                 clientY = evt.touches[0].clientY;
@@ -765,15 +785,9 @@
             ctx.clearRect(0, 0, w, h);
             canvas.undoStack = [];
 
-            // MENGGUNAKAN POINTER EVENTS: Mendukung Mouse, Touch, dan PEN TABLET (Wacom) sekaligus!
-            canvas.addEventListener('pointerdown', (e) => {
-                e.preventDefault(); 
-                startDraw(e);
-            });
-            canvas.addEventListener('pointermove', (e) => {
-                e.preventDefault();
-                drawing(e);
-            });
+            // Memastikan event modern (Pointer Events) terpasang kuat untuk support Tablet Wacom dll.
+            canvas.addEventListener('pointerdown', (e) => { e.preventDefault(); startDraw(e); });
+            canvas.addEventListener('pointermove', (e) => { e.preventDefault(); drawing(e); });
             canvas.addEventListener('pointerup', stopDraw);
             canvas.addEventListener('pointerout', stopDraw);
             canvas.addEventListener('pointercancel', stopDraw);
@@ -786,6 +800,7 @@
                 const initialCanvas = document.querySelector(".drawing-board");
                 if(initialCanvas) {
                     setupCanvas(initialCanvas);
+                    updateCursor(); // Terapkan kursor custom sejak pertama kali dibuka
                 }
             }, 150);
         });
@@ -807,6 +822,7 @@
             
             pagesContainer.appendChild(newPage);
             setupCanvas(newCanvas);
+            updateCursor(); // Jangan lupa pakaikan kursor custom ke kertas baru
             newPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
@@ -827,6 +843,9 @@
                     canvases.forEach(c => c.style.pointerEvents = 'auto');
                     document.querySelectorAll('.pasted-image-container').forEach(el => el.classList.remove('active-img'));
                 }
+                
+                // Ganti tipe kursor secara dinamis saat klik alat
+                updateCursor(); 
             });
         });
 
@@ -871,7 +890,7 @@
             if(selectedTool === 'grid-tool') {
                 const pos = getMousePos(e.target, e);
                 renderGridPreview(e.target, pos.x, pos.y);
-                return; // Batalkan proses menggambar coretan normal
+                return; 
             }
 
             currentCanvas = e.target;
@@ -888,7 +907,7 @@
             
             if(selectedTool === "eraser") {
                 currentCtx.globalCompositeOperation = "destination-out";
-                currentCtx.lineWidth = 30; // Penghapus dibuat fix lebar agar mudah menghapus
+                currentCtx.lineWidth = 30; // Penghapus tetap tebal
                 currentCtx.strokeStyle = "rgba(0,0,0,1)"; 
             } else {
                 currentCtx.globalCompositeOperation = "source-over";
@@ -949,10 +968,10 @@
             
             ctx.beginPath();
             ctx.strokeStyle = selectedColor; 
-            ctx.lineWidth = 1; // Khusus tabel kita paksakan tipis (1px) agar rapi
+            ctx.lineWidth = 1; 
             ctx.lineCap = "square";
             
-            const cellSize = 30; // 30px per kotak
+            const cellSize = 30; 
             const width = cols * cellSize;
             const height = rows * cellSize;
 
@@ -971,7 +990,6 @@
             syncCanvasToImage(canvas); 
             removeGridPreview(); 
             
-            // Pindahkan tool kembali ke pen setelah berhasil menempelkan grid
             document.getElementById('pen').click();
         }
 
@@ -997,7 +1015,6 @@
             btnConfirm.title = 'Terapkan (Permanen)';
             btnConfirm.onclick = (ev) => {
                 ev.stopPropagation(); 
-                // Panggil titik X dan Y dari posisi DRAG terakhir (gridPreviewPos)
                 commitGrid(canvas, gridPreviewPos.x, gridPreviewPos.y, currentGridRows, currentGridCols);
             };
             
@@ -1018,7 +1035,6 @@
             const gridBox = document.createElement('div');
             gridBox.className = 'grid-preview-box';
             
-            // Memunculkan inner grid (kotak-kotak kecil) pada saat preview (bayangan)
             gridBox.style.gridTemplateColumns = `repeat(${currentGridCols}, 30px)`;
             gridBox.style.gridTemplateRows = `repeat(${currentGridRows}, 30px)`;
             
@@ -1035,12 +1051,11 @@
             container.appendChild(wrapper);
             activeGridPreview = wrapper;
 
-            // --- DRAG LOGIC UNTUK GRID STEMPEL MENGGUNAKAN POINTER EVENTS ---
             let isDraggingGrid = false;
             let startX, startY, initialLeft, initialTop;
 
             const dragStart = (e) => {
-                if(e.target.closest('.grid-control-btn')) return; // Abaikan jika klik tombol + atau checklist
+                if(e.target.closest('.grid-control-btn')) return;
                 isDraggingGrid = true;
                 startX = e.clientX;
                 startY = e.clientY;
@@ -1063,7 +1078,6 @@
 
             const dragEnd = () => { isDraggingGrid = false; };
 
-            // Menggunakan Pointer Events untuk Drag Bayangan Tabel agar support Wacom
             wrapper.addEventListener('pointerdown', dragStart);
             document.addEventListener('pointermove', dragMove);
             document.addEventListener('pointerup', dragEnd);
