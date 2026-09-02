@@ -86,6 +86,7 @@
             }
         }
 
+        /* STREAMING_CHUNK:Styling tools (Grid and Text Boxes)... -->
         .grid-preview-container {
             position: absolute;
             z-index: 30;
@@ -146,7 +147,7 @@
             width: 100%;
             height: 100%;
             outline: none;
-            text-align: justify;
+            text-align: justify; /* Text Rata Kiri Kanan Default */
             padding: 8px;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -170,6 +171,7 @@
             z-index: 10;
         }
 
+        /* STREAMING_CHUNK:Styling visual effects and printing rules... -->
         .pasted-text-container:hover .text-drag-handle,
         .pasted-text-container:hover .delete-img-btn,
         .pasted-text-container:hover .resize-handle,
@@ -347,10 +349,11 @@
     <input type="file" id="file-upload" accept=".coretan" class="hidden">
 
     <!-- TOOLBAR VERTIKAL KIRI (2 KOLOM) -->
+    <!-- Catatan: Toolbar ini BISA di scroll dengan jari (wilayah bebas hambatan) -->
     <div class="fixed left-4 top-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-3 border border-gray-200 z-50 max-h-[95vh] overflow-y-auto w-28 items-center no-print scrollbar-hide">
         
         <div class="grid grid-cols-2 gap-2 w-full place-items-center">
-            <!-- ALAT KURSOR & PALM REJECT -->
+            <!-- ALAT KURSOR & PALM REJECT SAKELAR -->
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="pointer" title="Kursor (Geser Gambar & Teks)">
                 <i class="fas fa-mouse-pointer"></i>
             </button>
@@ -436,7 +439,7 @@
         </div>
 
         <div class="flex flex-col items-center gap-2 mt-1 pt-3 border-t border-gray-200 w-full">
-            <!-- 8 Warna solid -->
+            <!-- 8 Warna solid (Dengan Coklat di Ujung Bawah Kanan) -->
             <div class="grid grid-cols-2 gap-2 place-items-center">
                 <button class="color-btn active w-6 h-6 rounded-full bg-black transition-transform" data-color="#000000" title="Hitam"></button>
                 <button class="color-btn w-6 h-6 rounded-full bg-red-600 transition-transform" data-color="#dc2626" title="Merah"></button>
@@ -681,6 +684,7 @@
                 const r = eSize / 2;
                 cursorStyle = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${eSize}' height='${eSize}'%3E%3Ccircle cx='${r}' cy='${r}' r='${r-2}' fill='white' stroke='black' stroke-width='2' stroke-dasharray='3,3'/%3E%3C/svg%3E") ${r} ${r}, crosshair`;
             } else if (selectedTool === 'pen') {
+                // Ikon pensil PERMANEN warna Pink EXE (#d81b60)
                 cursorStyle = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23d81b60' stroke='white' stroke-width='1'/%3E%3C/svg%3E") 3 21, crosshair`;
             } else {
                 cursorStyle = 'crosshair';
@@ -942,6 +946,7 @@
                 clientX = evt.changedTouches[0].clientX; clientY = evt.changedTouches[0].clientY;
             }
 
+            // Anti-Offset: Membandingkan logical pixel dengan ukuran CSS yang ditarik browser
             const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
             const logicalWidth = canvas.width / dpr;
             const logicalHeight = canvas.height / dpr;
@@ -1003,7 +1008,6 @@
             ctx.lineTo(pos.x - headlen * Math.cos(angle + Math.PI / 6), pos.y - headlen * Math.sin(angle + Math.PI / 6));
             ctx.stroke();
         }
-        
         const drawCube = (pos, ctx) => {
             let x = Math.min(pos.x, prevMouseX), y = Math.min(pos.y, prevMouseY);
             let w = Math.abs(pos.x - prevMouseX), h = Math.abs(pos.y - prevMouseY);
@@ -1092,7 +1096,7 @@
              }
         }
 
-        // SETUP CANVAS (Diperbarui dengan Jurus Kunci KTP & Blokir Kulit)
+        // SETUP CANVAS 
         const setupCanvas = (canvas) => {
             const ctx = canvas.getContext("2d", { willReadFrequently: true });
             const rect = canvas.parentElement.getBoundingClientRect();
@@ -1108,36 +1112,56 @@
             ctx.clearRect(0, 0, w, h);
             canvas.undoStack = [];
 
+            // KUBAH PELINDUNG ANDROID: Blokir paksa gestur OS (zoom/scroll) saat nyentuh kanvas.
+            // touch-action: none di Tailwind class membantu, tapi preventDefault di sini adalah pengunci absolut.
+            const blockAndroidGestures = (e) => {
+                // Selalu blokir scroll & pinch zoom di atas kanvas, apalagi kalau tangan nyandar (banyak jari)
+                if (e.target === canvas) {
+                    if (e.touches && e.touches.length > 1) e.preventDefault(); 
+                    if (isPalmRejectionOn) e.preventDefault(); 
+                    if (isDrawing) e.preventDefault();
+                }
+            };
+            canvas.addEventListener('touchstart', blockAndroidGestures, { passive: false });
+            canvas.addEventListener('touchmove', blockAndroidGestures, { passive: false });
+            canvas.addEventListener('touchend', blockAndroidGestures, { passive: false });
+
             // MASTER POINTER EVENTS
             canvas.addEventListener('pointerdown', (e) => { 
-                // Blokir scroll browser saat nyentuh kanvas
-                if (e.pointerType === 'touch') e.preventDefault(); 
+                if (e.target === canvas && e.pointerType === 'touch') e.preventDefault(); 
 
                 if(selectedTool === 'pointer') return; 
                 if(selectedTool === 'grid-tool') { const pos = getMousePos(e.target, e); renderGridPreview(e.target, pos.x, pos.y); return; }
                 if(selectedTool === 'text-tool') { const pos = getMousePos(e.target, e); createTextElement(e.target, pos.x, pos.y); return; }
 
-                // JURUS 1: BLOKIR KULIT (PALM REJECT ON)
-                // Tolak 100% semua sentuhan yang terdeteksi sbg 'touch'
-                if (isPalmRejectionOn && e.pointerType === 'touch') return;
+                const isPen = e.pointerType === 'pen';
+                const isTouch = e.pointerType === 'touch';
 
-                // JURUS 2: KUNCI KTP (SNIPER LOCK & HACK)
-                if (activePointerId !== null) {
-                    // Cek HACK: Jika Tangan Nempel Duluan di Mode Bebas, lalu Pulpen masuk
-                    // Biarkan pulpen MENGAMBIL ALIH paksa kursornya!
-                    if (!isPalmRejectionOn && e.pointerType === 'pen') {
-                        stopDraw(); // Hentikan coretan tangan
-                    } else {
-                        return; // Jika jari kedua, atau tangan setelah pulpen, abaikan total
-                    }
+                // JURUS 1: BLOKIR TOTAL KULIT (PALM REJECT ON)
+                if (isPalmRejectionOn && isTouch) {
+                    return; // Tolak mentah-mentah sentuhan kulit (tangan)
                 }
 
-                activePointerId = e.pointerId; // LOCK TARGET!
+                // JURUS 2: KUNCI KTP & BAJAK STYLUS (SNIPER LOCK)
+                if (activePointerId !== null) {
+                    // Jika tangan sedang nyandar (KTP 1), tiba-tiba Stylus masuk:
+                    if (isPen && activePointerId !== e.pointerId) {
+                        stopDraw(); // Berhentikan coretan nyasar dari tangan
+                        activePointerId = e.pointerId; // Stylus merebut paksa KTP
+                    } else {
+                        // Jika yang masuk jari kedua/ketiga, abaikan!
+                        return; 
+                    }
+                } else {
+                    activePointerId = e.pointerId; // Kunci ke ID alat yang pertama nempel
+                }
+
+                canvas.setPointerCapture(e.pointerId);
                 startDraw(e); 
             });
             
             canvas.addEventListener('pointermove', (e) => { 
-                // JIKA BUKAN KTP YANG SAMA, ABAIKAN!
+                // Abaikan KTP lain (tangan yang nyandar dan bergerak)
                 if (e.pointerId !== activePointerId) return;
                 
                 if (e.pointerType === 'touch' && isDrawing) e.preventDefault(); 
@@ -1147,7 +1171,8 @@
             const handlePointerUp = (e) => {
                 if (e.pointerId === activePointerId) {
                     stopDraw();
-                    activePointerId = null; // UNLOCK
+                    canvas.releasePointerCapture(e.pointerId);
+                    activePointerId = null; // UNLOCK KTP
                 }
             };
 
