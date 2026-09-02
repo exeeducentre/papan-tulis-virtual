@@ -16,7 +16,6 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Konfigurasi Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -61,7 +60,6 @@
             transition: all 0.3s ease;
         }
         
-        /* Tinggi standar canvas untuk Portrait */
         .kertas-a4 .canvas-container {
             height: 190mm;
         }
@@ -72,13 +70,10 @@
             min-height: 210mm;
         }
         
-        /* Tinggi canvas menyesuaikan layout Landscape */
         .kertas-a4.landscape-mode .canvas-container {
             height: 110mm !important; 
         }
 
-        /* STREAMING_CHUNK:Styling the layout for the workspace... -->
-        /* Layout penyesuaian agar tidak tertutup toolbar vertikal */
         @media screen {
             #main-content {
                 padding-left: 140px; 
@@ -87,14 +82,13 @@
             }
         }
 
-        /* GRID/TABEL PREVIEW MELAYANG */
+        /* GRID PREVIEW MELAYANG */
         .grid-preview-container {
             position: absolute;
             z-index: 30;
             cursor: move; 
             touch-action: none; 
         }
-        
         .grid-preview-box {
             border: 2px solid #d81b60;
             background-color: rgba(255, 255, 255, 0.4);
@@ -102,12 +96,10 @@
             pointer-events: none; 
             width: max-content;
         }
-        
         .grid-preview-cell {
             border: 1px dashed rgba(216, 27, 96, 0.5);
             box-sizing: border-box;
         }
-
         .grid-controls {
             position: absolute;
             top: -40px;
@@ -116,248 +108,129 @@
             gap: 8px;
             pointer-events: auto;
         }
-        
         .grid-control-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
+            width: 32px; height: 32px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; font-size: 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* STREAMING_CHUNK:Styling text boxes and interactive handles... -->
-        /* Styling Kotak Teks Melayang (Text Tool) */
+        /* FLOATING TEXT (Text Tool) */
         .pasted-text-container {
-            position: absolute;
-            min-width: 150px;
-            min-height: 30px;
-            z-index: 20;
-            border: 2px dashed transparent;
-            box-sizing: border-box;
+            position: absolute; min-width: 150px; min-height: 30px;
+            z-index: 20; border: 2px dashed transparent; box-sizing: border-box;
         }
-        
         .pasted-text-container:hover, .pasted-text-container.active-text {
             border-color: #d81b60; 
         }
-        
         .pasted-text-container .text-content {
-            width: 100%;
-            height: 100%;
-            outline: none;
-            text-align: justify; /* Rata Kiri Kanan Default */
-            padding: 8px;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            cursor: text;
+            width: 100%; height: 100%; outline: none;
+            text-align: justify; padding: 8px;
+            word-wrap: break-word; white-space: pre-wrap; cursor: text;
         }
-
         .text-drag-handle {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            width: 20px;
-            height: 20px;
-            background: #d81b60;
-            color: white;
-            border-radius: 50%;
-            cursor: move;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            z-index: 10;
+            position: absolute; top: -10px; left: -10px; width: 20px; height: 20px;
+            background: #d81b60; color: white; border-radius: 50%; cursor: move;
+            display: none; align-items: center; justify-content: center; font-size: 10px; z-index: 10;
         }
 
-        .pasted-text-container:hover .text-drag-handle,
-        .pasted-text-container:hover .delete-img-btn,
-        .pasted-text-container:hover .resize-handle,
-        .pasted-text-container.active-text .text-drag-handle,
-        .pasted-text-container.active-text .delete-img-btn,
-        .pasted-text-container.active-text .resize-handle {
-            display: flex;
-        }
-
-        /* STREAMING_CHUNK:Styling pasted images and their controls... -->
-        /* CSS UNTUK GAMBAR YANG DI-PASTE */
+        /* PASTED IMAGE */
         .pasted-image-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            min-width: 50px;
-            min-height: 50px;
-            cursor: move;
-            z-index: 5;
-            border: 2px dashed transparent;
-            box-sizing: border-box;
+            position: absolute; top: 20px; left: 20px; min-width: 50px; min-height: 50px;
+            cursor: move; z-index: 5; border: 2px dashed transparent; box-sizing: border-box;
         }
-        
         .pasted-image-container:hover, .pasted-image-container.active-img {
             border-color: #2563eb; 
         }
-
         .pasted-image-container img {
-            width: 100%;
-            height: 100%;
-            pointer-events: none; 
-            display: block;
+            width: 100%; height: 100%; pointer-events: none; display: block;
         }
 
+        /* RESIZE & DELETE HANDLES (General) */
         .resize-handle {
-            position: absolute;
-            bottom: -6px;
-            right: -6px;
-            width: 16px;
-            height: 16px;
-            background: #2563eb;
-            border: 2px solid white;
-            border-radius: 50%;
-            cursor: se-resize;
-            display: none;
-            z-index: 10;
+            position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px;
+            background: #2563eb; border: 2px solid white; border-radius: 50%;
+            cursor: se-resize; display: none; z-index: 10;
         }
-
         .delete-img-btn {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 20px;
-            height: 20px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute; top: -10px; right: -10px; width: 20px; height: 20px;
+            background: #ef4444; color: white; border-radius: 50%; cursor: pointer;
+            display: none; align-items: center; justify-content: center; font-size: 10px;
+            z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .pasted-image-container:hover .resize-handle,
-        .pasted-image-container:hover .delete-img-btn,
-        .pasted-image-container.active-img .resize-handle,
-        .pasted-image-container.active-img .delete-img-btn {
+        .pasted-image-container:hover .resize-handle, .pasted-image-container:hover .delete-img-btn,
+        .pasted-image-container.active-img .resize-handle, .pasted-image-container.active-img .delete-img-btn,
+        .pasted-text-container:hover .text-drag-handle, .pasted-text-container:hover .delete-img-btn, .pasted-text-container:hover .resize-handle,
+        .pasted-text-container.active-text .text-drag-handle, .pasted-text-container.active-text .delete-img-btn, .pasted-text-container.active-text .resize-handle {
             display: flex;
         }
 
-        /* STREAMING_CHUNK:Defining visual classes for brands and print handling... -->
         .border-gradient-brand {
             border-image: linear-gradient(135deg, #d81b60 0%, #f57c00 50%, #fbc02d 100%) 1;
         }
-
         .text-gradient-brand {
             background: linear-gradient(135deg, #d81b60 0%, #f57c00 50%, #fbc02d 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* CSS FALLBACK UNTUK PRINT */
+        /* CSS FALLBACK UNTUK PRINT (Menyatukan Canvas dan Gambar) */
         .print-fallback {
-            display: none; 
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
         }
 
-        /* Pengaturan Cetak Halaman (Print) */
         @media print {
             body { background-color: white !important; margin: 0 !important; padding: 0 !important; }
             #main-content { padding-left: 0 !important; padding-top: 0 !important; }
             #pages-container { gap: 0 !important; margin-left: 0 !important; }
             
             .kertas-a4 {
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 15mm !important; 
-                width: 210mm !important;
-                height: 297mm !important; 
-                max-height: 297mm !important;
-                box-sizing: border-box !important;
-                page-break-after: always !important;
-                break-after: page !important;
+                box-shadow: none !important; margin: 0 !important; padding: 15mm !important; 
+                width: 210mm !important; height: 297mm !important; max-height: 297mm !important;
+                box-sizing: border-box !important; page-break-after: always !important; break-after: page !important;
                 overflow: hidden !important; 
             }
-            
             .kertas-a4.landscape-mode {
-                width: 297mm !important;
-                height: 210mm !important;
-                max-height: 210mm !important;
+                width: 297mm !important; height: 210mm !important; max-height: 210mm !important;
             }
-
             .kertas-a4:last-child { page-break-after: auto !important; break-after: auto !important; }
+            
             .no-print { display: none !important; }
             input::placeholder { color: transparent !important; }
-            thead { display: table-row-group !important; }
-            tfoot { display: table-row-group !important; }
+            thead, tfoot { display: table-row-group !important; }
             
             .canvas-container {
-                border: none !important;
-                box-shadow: none !important;
-                width: 100% !important;
-                overflow: hidden !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-                position: relative !important;
+                border: none !important; box-shadow: none !important; width: 100% !important;
+                overflow: hidden !important; margin: 0 !important; padding: 0 !important;
+                display: block !important; position: relative !important;
             }
-            
             .kertas-a4 .canvas-container { height: 190mm !important; }
             .kertas-a4.landscape-mode .canvas-container { height: 110mm !important; }
 
-            canvas.drawing-board { display: none !important; }
-            .pasted-image-container { display: none !important; }
-            .grid-preview-container { display: none !important; }
-
+            canvas.drawing-board, .pasted-image-container, .grid-preview-container { display: none !important; }
             .pasted-text-container { z-index: 60 !important; border: none !important; }
-            .pasted-text-container .text-drag-handle, 
-            .pasted-text-container .delete-img-btn, 
-            .pasted-text-container .resize-handle { display: none !important; }
+            .pasted-text-container .text-drag-handle, .pasted-text-container .delete-img-btn, .pasted-text-container .resize-handle { display: none !important; }
 
-            .print-fallback {
-                display: block !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
+            .print-fallback { display: block !important; width: 100% !important; height: 100% !important; }
         }
 
-        /* STREAMING_CHUNK:Styling buttons and interactive tool elements... -->
-        .tool-btn.active {
-            background-color: #d81b60;
-            color: white;
-            border-color: #d81b60;
-        }
-        
-        .color-btn.active {
-            transform: scale(1.2);
-            box-shadow: 0 0 0 2px white, 0 0 0 4px #d81b60;
-        }
-
-        .action-btn:active {
-            transform: scale(0.90);
-        }
+        .tool-btn.active { background-color: #d81b60; color: white; border-color: #d81b60; }
+        .color-btn.active { transform: scale(1.2); box-shadow: 0 0 0 2px white, 0 0 0 4px #d81b60; }
+        .action-btn:active { transform: scale(0.90); }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
     
-    <!-- Input File Tersembunyi untuk fitur Open Document -->
+    <!-- Input File Tersembunyi untuk fitur Load (.coretan) -->
     <input type="file" id="file-upload" accept=".coretan" class="hidden">
 
     <!-- TOOLBAR VERTIKAL KIRI (2 KOLOM) -->
-    <!-- Catatan: Toolbar ini aman dari Palm Reject, bebas di scroll dengan jari -->
-    <div class="fixed left-4 top-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-3 border border-gray-200 z-50 max-h-[95vh] overflow-y-auto w-28 items-center no-print scrollbar-hide">
+    <div class="fixed left-4 top-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-3 border border-gray-200 z-50 max-h-[95vh] overflow-y-auto w-28 items-center no-print scrollbar-hide touch-pan-y">
         
         <div class="grid grid-cols-2 gap-2 w-full place-items-center">
-            <!-- ALAT KURSOR & PALM REJECT SAKELAR -->
+            <!-- ALAT KURSOR & PALM REJECT -->
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="pointer" title="Kursor (Geser Gambar & Teks)">
                 <i class="fas fa-mouse-pointer"></i>
             </button>
@@ -425,15 +298,13 @@
 
             <div class="col-span-2 w-full h-px bg-gray-300 my-0.5"></div>
             
-            <!-- TOMBOL PAGE & ORIENTATION -->
+            <!-- TOMBOL PAGE, ORIENTATION, SAVE & LOAD -->
             <button id="add-page-btn" class="bg-blue-50 text-blue-600 w-10 h-10 rounded-lg shadow-sm hover:bg-blue-100 transition-colors flex items-center justify-center border border-blue-200" title="Tambah Halaman Baru">
                 <i class="fas fa-file-medical text-lg"></i>
             </button>
-            <button id="toggle-orientation" class="bg-purple-50 text-purple-600 w-10 h-10 rounded-lg shadow-sm hover:bg-purple-100 transition-colors flex flex-col items-center justify-center border border-purple-200" title="Ubah Rotasi Kertas (Portrait/Landscape)">
+            <button id="toggle-orientation" class="bg-purple-50 text-purple-600 w-10 h-10 rounded-lg shadow-sm hover:bg-purple-100 transition-colors flex flex-col items-center justify-center border border-purple-200" title="Ubah Rotasi Kertas">
                 <i class="fas fa-portrait"></i> 
             </button>
-
-            <!-- TOMBOL SAVE & LOAD -->
             <button id="btn-save" class="bg-green-50 text-green-600 w-10 h-10 rounded-lg shadow-sm hover:bg-green-100 transition-colors flex items-center justify-center border border-green-200 mt-1" title="Save Progres (.coretan)">
                 <i class="fas fa-save text-lg"></i>
             </button>
@@ -442,9 +313,8 @@
             </button>
         </div>
 
-        <!-- Pilihan Warna & Pengaturan Ketebalan/Teks -->
         <div class="flex flex-col items-center gap-2 mt-1 pt-3 border-t border-gray-200 w-full">
-            <!-- 8 Warna solid (Termasuk warna Coklat) -->
+            <!-- 8 Warna solid -->
             <div class="grid grid-cols-2 gap-2 place-items-center">
                 <button class="color-btn active w-6 h-6 rounded-full bg-black transition-transform" data-color="#000000" title="Hitam"></button>
                 <button class="color-btn w-6 h-6 rounded-full bg-red-600 transition-transform" data-color="#dc2626" title="Merah"></button>
@@ -471,7 +341,7 @@
                 </select>
             </div>
 
-            <!-- PILIHAN PENGATURAN FONT (Untuk Alat Teks) -->
+            <!-- PILIHAN PENGATURAN FONT -->
             <div class="flex flex-col items-center w-full gap-1">
                 <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wide">Font</span>
                 <select id="font-family-select" class="w-full text-[10px] font-semibold border-2 border-gray-300 rounded-lg p-1 focus:outline-none focus:border-brand-pink cursor-pointer bg-gray-50 text-gray-700">
@@ -519,7 +389,7 @@
         <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 transform transition-all scale-100">
             <div class="flex items-center gap-3 mb-4 text-blue-600">
                 <i class="fas fa-border-all text-2xl"></i>
-                <h3 class="text-xl font-bold text-gray-800">Atur Ukuran Grid / Tabel</h3>
+                <h3 class="text-xl font-bold text-gray-800">Atur Ukuran Grid</h3>
             </div>
             <div class="flex gap-4 mb-6">
                 <div class="w-1/2">
@@ -527,7 +397,7 @@
                     <input type="number" id="grid-rows-input" value="3" min="1" max="30" class="w-full border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-0 p-2 text-center text-lg font-bold">
                 </div>
                 <div class="w-1/2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Kolom (Ke samping)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kolom (Samping)</label>
                     <input type="number" id="grid-cols-input" value="3" min="1" max="30" class="w-full border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-0 p-2 text-center text-lg font-bold">
                 </div>
             </div>
@@ -538,11 +408,9 @@
         </div>
     </div>
 
-    <!-- KONTAINER UTAMA -->
     <div id="main-content" class="w-full">
         <!-- KONTAINER SEMUA HALAMAN KERTAS -->
         <div id="pages-container" class="flex flex-col gap-10">
-            <!-- HALAMAN 1 -->
             <div class="kertas-a4 rounded-xl print:rounded-none">
                 <table class="w-full border-collapse">
                     <thead>
@@ -573,22 +441,16 @@
                             </td>
                         </tr>
                     </thead>
-
-                    <!-- TBODY: Area Kanvas Coretan -->
                     <tbody>
                         <tr>
                             <td class="pb-6">
-                                <!-- Canvas Container -->
                                 <div class="canvas-container w-full border-2 border-dashed border-gray-300 rounded-xl bg-white relative">
-                                    <!-- Kanvas Utama (Z-index 10) -->
                                     <canvas class="drawing-board w-full h-full block absolute top-0 left-0" style="z-index: 10;"></canvas>
-                                    <!-- Image Fallback untuk cetak PDF -->
                                     <img class="print-fallback" alt="" />
                                 </div>
                             </td>
                         </tr>
                     </tbody>
-
                     <tfoot>
                         <tr>
                             <td class="pt-8">
@@ -651,13 +513,11 @@
         let lastHoveredContainer = null;
         let isLandscapeMode = false;
         
-        // --- SISTEM KUNCI & PALM REJECT PINTAR (ANDROID FRIENDLY) ---
+        // --- JURUS DUET MAUT: PALM REJECTION & ID LOCK ---
         let isPalmRejectionOn = false;
         let activePointerId = null; 
         
         const MAX_UNDO_STEPS = 15; 
-
-        // Variabel Grid/Tabel Melayang
         let currentGridRows = 3;
         let currentGridCols = 3;
         let activeGridPreview = null;
@@ -684,29 +544,23 @@
             const canvases = document.querySelectorAll(".drawing-board");
             let cursorStyle = 'crosshair';
             
-            if (selectedTool === 'pointer') {
-                cursorStyle = 'default';
-            } else if (selectedTool === 'text-tool') {
-                cursorStyle = 'text';
-            } else if (selectedTool === 'eraser') {
-                // Dinamis: Penghapus menyesuaikan ukuran 10x lipat dari pulpen
+            if (selectedTool === 'pointer') cursorStyle = 'default';
+            else if (selectedTool === 'text-tool') cursorStyle = 'text';
+            else if (selectedTool === 'eraser') {
                 const eSize = Math.max(16, brushWidth * 10);
                 const r = eSize / 2;
                 cursorStyle = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${eSize}' height='${eSize}'%3E%3Ccircle cx='${r}' cy='${r}' r='${r-2}' fill='white' stroke='black' stroke-width='2' stroke-dasharray='3,3'/%3E%3C/svg%3E") ${r} ${r}, crosshair`;
             } else if (selectedTool === 'pen') {
-                // Ikon pensil PERMANEN warna Pink EXE (#d81b60)
+                // Permanen warna EXE Pink
                 cursorStyle = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23d81b60' stroke='white' stroke-width='1'/%3E%3C/svg%3E") 3 21, crosshair`;
-            } else {
-                cursorStyle = 'crosshair';
             }
 
             canvases.forEach(c => c.style.cursor = cursorStyle);
         }
 
-        // Ketebalan Garis
         brushSizeSelect.addEventListener("change", (e) => {
             brushWidth = parseFloat(e.target.value);
-            updateCursor(); // Update kursor visual, terutama untuk penghapus
+            updateCursor(); 
         });
 
         document.addEventListener('mouseover', (e) => {
@@ -772,7 +626,6 @@
             window.print(); 
         });
 
-        // --- LOGIKA ALAT TEKS MELAYANG (TEXT TOOL) ---
         function createTextElement(canvas, x, y, savedData = null) {
             const container = canvas.closest('.canvas-container');
             if(!container) return;
@@ -780,7 +633,6 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'pasted-text-container active-text';
             
-            // Ambil style dari dropdown toolbar (atau data load)
             const fontFamily = savedData ? savedData.fontFamily : document.getElementById('font-family-select').value;
             const fontSize = savedData ? savedData.fontSize : document.getElementById('font-size-select').value;
             const color = savedData ? savedData.color : selectedColor;
@@ -811,17 +663,13 @@
             const deleteBtn = document.createElement('div');
             deleteBtn.className = 'delete-img-btn';
             deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-            deleteBtn.onclick = () => {
-                wrapper.remove();
-            };
+            deleteBtn.onclick = () => { wrapper.remove(); };
             wrapper.appendChild(deleteBtn);
 
             container.insertBefore(wrapper, canvas);
-
             makeTextDraggableAndResizable(wrapper, dragHandle, resizeHandle, container);
             
             document.getElementById('pointer').click();
-            
             if(!savedData) {
                 textDiv.focus();
                 document.execCommand('selectAll', false, null);
@@ -829,8 +677,7 @@
         }
 
         function makeTextDraggableAndResizable(wrapper, dragHandle, resizeHandle, container) {
-            let isDragging = false;
-            let isResizing = false;
+            let isDragging = false, isResizing = false;
             let startX, startY, startWidth, startHeight, startLeft, startTop;
 
             const activate = () => {
@@ -845,27 +692,19 @@
             });
 
             dragHandle.addEventListener('pointerdown', (e) => {
-                activate();
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = wrapper.offsetLeft;
-                startTop = wrapper.offsetTop;
+                activate(); isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                startLeft = wrapper.offsetLeft; startTop = wrapper.offsetTop;
                 dragHandle.setPointerCapture(e.pointerId);
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
             });
 
             resizeHandle.addEventListener('pointerdown', (e) => {
-                activate();
-                isResizing = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startWidth = wrapper.offsetWidth;
-                startHeight = wrapper.offsetHeight;
+                activate(); isResizing = true;
+                startX = e.clientX; startY = e.clientY;
+                startWidth = wrapper.offsetWidth; startHeight = wrapper.offsetHeight;
                 resizeHandle.setPointerCapture(e.pointerId);
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
             });
 
             document.addEventListener('pointermove', (e) => {
@@ -878,10 +717,7 @@
                 }
             });
 
-            document.addEventListener('pointerup', () => {
-                isDragging = false;
-                isResizing = false;
-            });
+            document.addEventListener('pointerup', () => { isDragging = false; isResizing = false; });
         }
 
         window.addEventListener('paste', (e) => {
@@ -891,9 +727,7 @@
                 if (item.kind === 'file' && item.type.startsWith('image/')) {
                     const blob = item.getAsFile();
                     const reader = new FileReader();
-                    reader.onload = (event) => {
-                        createPastedImage(event.target.result);
-                    };
+                    reader.onload = (event) => { createPastedImage(event.target.result); };
                     reader.readAsDataURL(blob);
                 }
             }
@@ -905,14 +739,11 @@
 
             const wrapper = document.createElement('div');
             wrapper.className = 'pasted-image-container';
-            
             const img = document.createElement('img');
-            img.src = src;
-            wrapper.appendChild(img);
+            img.src = src; wrapper.appendChild(img);
 
             const resizeHandle = document.createElement('div');
-            resizeHandle.className = 'resize-handle';
-            wrapper.appendChild(resizeHandle);
+            resizeHandle.className = 'resize-handle'; wrapper.appendChild(resizeHandle);
 
             const deleteBtn = document.createElement('div');
             deleteBtn.className = 'delete-img-btn';
@@ -939,8 +770,7 @@
         }
 
         function makeDraggableAndResizable(wrapper, handle, container, canvas) {
-            let isDragging = false;
-            let isResizing = false;
+            let isDragging = false, isResizing = false;
             let startX, startY, startWidth, startHeight, startLeft, startTop;
 
             const activateImg = () => {
@@ -950,77 +780,57 @@
 
             wrapper.addEventListener('pointerdown', (e) => {
                 if(e.target === handle || e.target.closest('.delete-img-btn')) return;
-                activateImg();
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = wrapper.offsetLeft;
-                startTop = wrapper.offsetTop;
-                wrapper.setPointerCapture(e.pointerId);
-                e.preventDefault(); 
+                activateImg(); isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                startLeft = wrapper.offsetLeft; startTop = wrapper.offsetTop;
+                wrapper.setPointerCapture(e.pointerId); e.preventDefault(); 
             });
 
             handle.addEventListener('pointerdown', (e) => {
-                activateImg();
-                isResizing = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startWidth = wrapper.offsetWidth;
-                startHeight = wrapper.offsetHeight;
+                activateImg(); isResizing = true;
+                startX = e.clientX; startY = e.clientY;
+                startWidth = wrapper.offsetWidth; startHeight = wrapper.offsetHeight;
                 handle.setPointerCapture(e.pointerId);
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
             });
 
             document.addEventListener('pointermove', (e) => {
                 if (isDragging) {
-                    let newLeft = startLeft + (e.clientX - startX);
-                    let newTop = startTop + (e.clientY - startY);
-                    wrapper.style.left = newLeft + 'px';
-                    wrapper.style.top = newTop + 'px';
+                    wrapper.style.left = startLeft + (e.clientX - startX) + 'px';
+                    wrapper.style.top = startTop + (e.clientY - startY) + 'px';
                 } else if (isResizing) {
-                    const newWidth = Math.max(50, startWidth + (e.clientX - startX));
-                    const newHeight = Math.max(50, startHeight + (e.clientY - startY));
-                    wrapper.style.width = newWidth + 'px';
-                    wrapper.style.height = newHeight + 'px';
+                    wrapper.style.width = Math.max(50, startWidth + (e.clientX - startX)) + 'px';
+                    wrapper.style.height = Math.max(50, startHeight + (e.clientY - startY)) + 'px';
                 }
             });
 
             document.addEventListener('pointerup', () => {
                 if (isDragging || isResizing) {
-                    isDragging = false;
-                    isResizing = false;
+                    isDragging = false; isResizing = false;
                     syncCanvasToImage(canvas);
                 }
             });
         }
 
-        // --- SISTEM KOORDINAT PINTAR (ANTI-OFFSET) ---
         const getMousePos = (canvas, evt) => {
             const rect = canvas.getBoundingClientRect();
             let clientX = evt.clientX || 0;
             let clientY = evt.clientY || 0;
 
             if (evt.touches && evt.touches.length > 0) {
-                clientX = evt.touches[0].clientX;
-                clientY = evt.touches[0].clientY;
+                clientX = evt.touches[0].clientX; clientY = evt.touches[0].clientY;
             } else if (evt.changedTouches && evt.changedTouches.length > 0) {
-                clientX = evt.changedTouches[0].clientX;
-                clientY = evt.changedTouches[0].clientY;
+                clientX = evt.changedTouches[0].clientX; clientY = evt.changedTouches[0].clientY;
             }
 
-            // Mencegah Miss-position dengan rumus skala yang akurat
+            // Anti-Offset: Hitung rasio asli kanvas vs CSS di layar
             const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
             const logicalWidth = canvas.width / dpr;
             const logicalHeight = canvas.height / dpr;
-
             const scaleX = logicalWidth / rect.width;
             const scaleY = logicalHeight / rect.height;
 
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
-            };
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
         };
 
         const saveCanvasState = (canvas) => {
@@ -1028,17 +838,12 @@
             const ctx = canvas.getContext("2d");
             const state = ctx.getImageData(0, 0, canvas.width, canvas.height);
             canvas.undoStack.push(state);
-            if (canvas.undoStack.length > MAX_UNDO_STEPS) {
-                canvas.undoStack.shift(); 
-            }
+            if (canvas.undoStack.length > MAX_UNDO_STEPS) canvas.undoStack.shift(); 
         };
 
         undoBtn.addEventListener('click', performUndo);
         window.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                e.preventDefault();
-                performUndo();
-            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
         });
 
         function performUndo() {
@@ -1047,56 +852,40 @@
             const canvas = container.querySelector('.drawing-board');
             if (canvas && canvas.undoStack && canvas.undoStack.length > 0) {
                 const ctx = canvas.getContext("2d");
-                const prevState = canvas.undoStack.pop();
-                ctx.putImageData(prevState, 0, 0);
+                ctx.putImageData(canvas.undoStack.pop(), 0, 0);
                 syncCanvasToImage(canvas);
             }
         }
 
+        // --- MATH BENTUK (2D & 3D) ---
         const drawRect = (pos, ctx) => { ctx.strokeRect(pos.x, pos.y, prevMouseX - pos.x, prevMouseY - pos.y); }
         const drawCircle = (pos, ctx) => {
             ctx.beginPath();
             let radius = Math.sqrt(Math.pow((prevMouseX - pos.x), 2) + Math.pow((prevMouseY - pos.y), 2));
-            ctx.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI);
-            ctx.stroke();
+            ctx.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI); ctx.stroke();
         }
         const drawTriangle = (pos, ctx) => {
-            ctx.beginPath();
-            ctx.moveTo(prevMouseX, prevMouseY);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.lineTo(prevMouseX * 2 - pos.x, pos.y);
-            ctx.closePath();
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(prevMouseX, prevMouseY);
+            ctx.lineTo(pos.x, pos.y); ctx.lineTo(prevMouseX * 2 - pos.x, pos.y);
+            ctx.closePath(); ctx.stroke();
         }
         const drawLine = (pos, ctx) => {
-            ctx.beginPath();
-            ctx.moveTo(prevMouseX, prevMouseY);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(prevMouseX, prevMouseY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
         }
         const drawArrow = (pos, ctx) => {
-            const headlen = 15; 
-            const dx = pos.x - prevMouseX;
-            const dy = pos.y - prevMouseY;
+            const headlen = 15; const dx = pos.x - prevMouseX; const dy = pos.y - prevMouseY;
             const angle = Math.atan2(dy, dx);
-            
-            ctx.beginPath();
-            ctx.moveTo(prevMouseX, prevMouseY);
-            ctx.lineTo(pos.x, pos.y);
+            ctx.beginPath(); ctx.moveTo(prevMouseX, prevMouseY); ctx.lineTo(pos.x, pos.y);
             ctx.lineTo(pos.x - headlen * Math.cos(angle - Math.PI / 6), pos.y - headlen * Math.sin(angle - Math.PI / 6));
             ctx.moveTo(pos.x, pos.y);
             ctx.lineTo(pos.x - headlen * Math.cos(angle + Math.PI / 6), pos.y - headlen * Math.sin(angle + Math.PI / 6));
             ctx.stroke();
         }
         
-        // 3D Shapes Drawing Math
         const drawCube = (pos, ctx) => {
-            let x = Math.min(pos.x, prevMouseX);
-            let y = Math.min(pos.y, prevMouseY);
-            let w = Math.abs(pos.x - prevMouseX);
-            let h = Math.abs(pos.y - prevMouseY);
+            let x = Math.min(pos.x, prevMouseX), y = Math.min(pos.y, prevMouseY);
+            let w = Math.abs(pos.x - prevMouseX), h = Math.abs(pos.y - prevMouseY);
             let offset = Math.min(w, h) * 0.35; 
-
             ctx.beginPath();
             ctx.rect(x + offset, y, w - offset, h - offset); // Back face
             ctx.rect(x, y + offset, w - offset, h - offset); // Front face
@@ -1107,103 +896,67 @@
             ctx.stroke();
         }
         const drawCylinder = (pos, ctx) => {
-            let x = Math.min(pos.x, prevMouseX);
-            let y = Math.min(pos.y, prevMouseY);
-            let w = Math.abs(pos.x - prevMouseX);
-            let h = Math.abs(pos.y - prevMouseY);
-            let ry = Math.min(w/2, h * 0.15); 
-            let rx = w / 2;
-            let cx = x + rx;
-
+            let x = Math.min(pos.x, prevMouseX), y = Math.min(pos.y, prevMouseY);
+            let w = Math.abs(pos.x - prevMouseX), h = Math.abs(pos.y - prevMouseY);
+            let ry = Math.min(w/2, h * 0.15), rx = w / 2, cx = x + rx;
             ctx.beginPath();
             ctx.ellipse(cx, y + ry, rx, ry, 0, 0, 2 * Math.PI); // Top ellipse
             ctx.moveTo(cx + rx, y + h - ry);
             ctx.ellipse(cx, y + h - ry, rx, ry, 0, 0, 2 * Math.PI); // Bottom ellipse
-            ctx.moveTo(x, y + ry); ctx.lineTo(x, y + h - ry); // Left line
-            ctx.moveTo(x + w, y + ry); ctx.lineTo(x + w, y + h - ry); // Right line
+            ctx.moveTo(x, y + ry); ctx.lineTo(x, y + h - ry); 
+            ctx.moveTo(x + w, y + ry); ctx.lineTo(x + w, y + h - ry); 
             ctx.stroke();
         }
         const drawCone = (pos, ctx) => {
-            let x = Math.min(pos.x, prevMouseX);
-            let y = Math.min(pos.y, prevMouseY);
-            let w = Math.abs(pos.x - prevMouseX);
-            let h = Math.abs(pos.y - prevMouseY);
-            let ry = Math.min(w/2, h * 0.15);
-            let rx = w / 2;
-            let cx = x + rx;
-
+            let x = Math.min(pos.x, prevMouseX), y = Math.min(pos.y, prevMouseY);
+            let w = Math.abs(pos.x - prevMouseX), h = Math.abs(pos.y - prevMouseY);
+            let ry = Math.min(w/2, h * 0.15), rx = w / 2, cx = x + rx;
             ctx.beginPath();
             ctx.ellipse(cx, y + h - ry, rx, ry, 0, 0, 2 * Math.PI); // Bottom ellipse
-            ctx.moveTo(x, y + h - ry); ctx.lineTo(cx, y); // Left line to apex
-            ctx.moveTo(x + w, y + h - ry); ctx.lineTo(cx, y); // Right line to apex
+            ctx.moveTo(x, y + h - ry); ctx.lineTo(cx, y); 
+            ctx.moveTo(x + w, y + h - ry); ctx.lineTo(cx, y); 
             ctx.stroke();
         }
 
         const startDraw = (e) => {
             if(selectedTool === 'pointer') return; 
-            
-            if(selectedTool === 'grid-tool') {
-                const pos = getMousePos(e.target, e);
-                renderGridPreview(e.target, pos.x, pos.y);
-                return; 
-            }
+            if(selectedTool === 'grid-tool') { renderGridPreview(e.target, getMousePos(e.target, e).x, getMousePos(e.target, e).y); return; }
+            if(selectedTool === 'text-tool') { createTextElement(e.target, getMousePos(e.target, e).x, getMousePos(e.target, e).y); return; }
 
-            if(selectedTool === 'text-tool') {
-                const pos = getMousePos(e.target, e);
-                createTextElement(e.target, pos.x, pos.y);
-                return;
-            }
-
-            currentCanvas = e.target;
-            currentCtx = currentCanvas.getContext("2d");
-            saveCanvasState(currentCanvas);
-            isDrawing = true;
+            currentCanvas = e.target; currentCtx = currentCanvas.getContext("2d");
+            saveCanvasState(currentCanvas); isDrawing = true;
             
             const pos = getMousePos(currentCanvas, e);
-            prevMouseX = pos.x;
-            prevMouseY = pos.y;
-            
-            currentCtx.beginPath();
-            currentCtx.moveTo(pos.x, pos.y);
+            prevMouseX = pos.x; prevMouseY = pos.y;
+            currentCtx.beginPath(); currentCtx.moveTo(pos.x, pos.y);
             
             if(selectedTool === "eraser") {
                 currentCtx.globalCompositeOperation = "destination-out";
-                // Ukuran dinamis penghapus: 10x lipat lebih tebal dari pulpen
                 currentCtx.lineWidth = brushWidth * 10; 
                 currentCtx.strokeStyle = "rgba(0,0,0,1)"; 
             } else {
                 currentCtx.globalCompositeOperation = "source-over";
-                currentCtx.lineWidth = brushWidth; 
-                currentCtx.strokeStyle = selectedColor;
-                currentCtx.fillStyle = selectedColor;
+                currentCtx.lineWidth = brushWidth; currentCtx.strokeStyle = selectedColor; currentCtx.fillStyle = selectedColor;
             }
-            
-            currentCtx.lineCap = "round"; 
-            currentCtx.lineJoin = "round";
+            currentCtx.lineCap = "round"; currentCtx.lineJoin = "round";
             snapshot = currentCtx.getImageData(0, 0, currentCanvas.width, currentCanvas.height);
         }
 
         const drawing = (e) => {
             if(!isDrawing || !currentCtx || !currentCanvas || selectedTool === 'pointer' || selectedTool === 'grid-tool' || selectedTool === 'text-tool') return;
-            
             const pos = getMousePos(currentCanvas, e);
-
-            if (selectedTool !== "pen" && selectedTool !== "eraser") {
-                if (snapshot) currentCtx.putImageData(snapshot, 0, 0); 
-            }
+            if (selectedTool !== "pen" && selectedTool !== "eraser") if (snapshot) currentCtx.putImageData(snapshot, 0, 0); 
 
             if(selectedTool === "pen" || selectedTool === "eraser") {
-                currentCtx.lineTo(pos.x, pos.y);
-                currentCtx.stroke();
-            } else if(selectedTool === "rect"){ drawRect(pos, currentCtx);
-            } else if(selectedTool === "circle"){ drawCircle(pos, currentCtx);
-            } else if(selectedTool === "triangle"){ drawTriangle(pos, currentCtx);
-            } else if(selectedTool === "line"){ drawLine(pos, currentCtx);
-            } else if(selectedTool === "arrow"){ drawArrow(pos, currentCtx);
-            } else if(selectedTool === "cube"){ drawCube(pos, currentCtx);
-            } else if(selectedTool === "cylinder"){ drawCylinder(pos, currentCtx);
-            } else if(selectedTool === "cone"){ drawCone(pos, currentCtx);
-            }
+                currentCtx.lineTo(pos.x, pos.y); currentCtx.stroke();
+            } else if(selectedTool === "rect") drawRect(pos, currentCtx);
+            else if(selectedTool === "circle") drawCircle(pos, currentCtx);
+            else if(selectedTool === "triangle") drawTriangle(pos, currentCtx);
+            else if(selectedTool === "line") drawLine(pos, currentCtx);
+            else if(selectedTool === "arrow") drawArrow(pos, currentCtx);
+            else if(selectedTool === "cube") drawCube(pos, currentCtx);
+            else if(selectedTool === "cylinder") drawCylinder(pos, currentCtx);
+            else if(selectedTool === "cone") drawCone(pos, currentCtx);
         }
 
         const stopDraw = () => {  
@@ -1214,70 +967,55 @@
             }
         }
 
+        // FUNGSI INTI JURUS DUET MAUT
         const setupCanvas = (canvas) => {
             const ctx = canvas.getContext("2d", { willReadFrequently: true });
             const rect = canvas.parentElement.getBoundingClientRect();
-            
-            const w = rect.width || 642; 
-            const h = rect.height || (isLandscapeMode ? 415 : 718); 
-
+            const w = rect.width || 642, h = rect.height || (isLandscapeMode ? 415 : 718); 
             const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
             
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-            ctx.scale(dpr, dpr);
-            
-            ctx.clearRect(0, 0, w, h);
+            canvas.width = w * dpr; canvas.height = h * dpr;
+            ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
             canvas.undoStack = [];
 
-            // 1. KUBAH PELINDUNG ANDROID: Blokir total gestur layar di level sentuhan awal
+            // 1. KUBAH PELINDUNG ANDROID: Cegah gestur sentuh bawaan (scroll/zoom) HANYA di kanvas
             const blockAndroidGestures = (e) => {
-                if (e.target === canvas) {
-                    // Kalau nyentuh pakai banyak jari ATAU palm reject aktif ATAU lagi nge-lock, batalkan scroll/zoom!
-                    if (e.touches && e.touches.length > 1) e.preventDefault(); 
-                    if (isPalmRejectionOn) e.preventDefault(); 
-                    if (activePointerId !== null) e.preventDefault();
+                if (selectedTool !== 'pointer' && selectedTool !== 'text-tool' && selectedTool !== 'grid-tool') {
+                    e.preventDefault();
                 }
             };
-            
             canvas.addEventListener('touchstart', blockAndroidGestures, { passive: false });
             canvas.addEventListener('touchmove', blockAndroidGestures, { passive: false });
-            canvas.addEventListener('touchend', blockAndroidGestures, { passive: false });
 
-            // 2. MESIN DETEKSI FISIK & KTP (Pointer Events)
+            // 2. MESIN DETEKSI FISIK & ID LOCK
             canvas.addEventListener('pointerdown', (e) => {
-                // Ignore gestures tools immediately
-                if(selectedTool === 'pointer' || selectedTool === 'grid-tool' || selectedTool === 'text-tool') {
-                    startDraw(e);
-                    return;
-                }
+                if(selectedTool === 'pointer' || selectedTool === 'grid-tool' || selectedTool === 'text-tool') { startDraw(e); return; }
 
+                // Hitung seberapa lebar/besar objek yang nempel
                 const contactSize = Math.max(e.width || 1, e.height || 1);
-                const isMouse = e.pointerType === 'mouse';
-                const isTouch = e.pointerType === 'touch';
-                
-                // Deteksi Fisik Murni (Mengabaikan label nakal browser)
-                // Angka 12px adalah ambang batas yang aman. Kulit biasanya > 15px. Stylus biasanya 1px.
-                const isLikelyPalm = isTouch && contactSize > 12;
-                const isLikelyStylus = isMouse || e.pointerType === 'pen' || (isTouch && contactSize <= 12) || (e.pressure && e.pressure > 0);
+                const isLikelyPalm = contactSize > 12; // Jika lebih lebar dari 12px = fix kulit/telapak tangan
+                const isLikelyStylus = contactSize <= 12; // Jika kecil = Stylus / Mouse
 
                 if (isPalmRejectionOn) {
-                    // BLOKIR TOTAL KULIT!
-                    if (!isLikelyStylus || isLikelyPalm) {
-                        return; // Abaikan sentuhan telapak tangan besar
-                    }
-                }
-
-                // JURUS KUNCI ID (SNIPER LOCK)
-                if (activePointerId !== null) {
-                    // Kalau tangan udah nyandar (id terisi), tapi ada stylus datang merebut...
-                    if (isLikelyStylus && !isLikelyPalm && e.pointerId !== activePointerId) {
-                        stopDraw(); // Hentikan kebocoran tangan
-                        activePointerId = e.pointerId; // Alihkan kontrol 100% ke Stylus
-                    } else {
-                        return; // Abaikan kalau itu jari kedua, ketiga, dll
+                    if (isLikelyPalm) return; // TOLAK MENTAH-MENTAH kulit jika mode aktif
+                    
+                    // JURUS REBUT KEKUASAAN (Hijack Lock)
+                    // Kalau kebetulan sistem udah ngunci ID telapak tangan (error deteksi awal) 
+                    // dan muncul ID baru yang kecil (stylus), langsung bajak kursornya!
+                    if (activePointerId !== null && activePointerId !== e.pointerId) {
+                        if (isLikelyStylus) {
+                            stopDraw(); 
+                            activePointerId = e.pointerId; 
+                        } else {
+                            return; 
+                        }
+                    } else if (activePointerId === null) {
+                        activePointerId = e.pointerId;
                     }
                 } else {
+                    // Mode Bebas: Kunci kursor ke sentuhan PERTAMA siapa cepat dia dapat. 
+                    // Tangan yang nyandar belakangan gak bakal bikin coretan nyasar.
+                    if (activePointerId !== null) return; 
                     activePointerId = e.pointerId;
                 }
 
@@ -1288,16 +1026,17 @@
             canvas.addEventListener('pointermove', (e) => { 
                 if (e.pointerId !== activePointerId) return;
                 
-                // Anti-Bocor: Waktu di tengah jalan tangan tiba-tiba melar (Palm Reject ON)
-                const contactSize = Math.max(e.width || 1, e.height || 1);
-                if (isPalmRejectionOn && e.pointerType === 'touch' && contactSize > 12) {
-                    stopDraw();
-                    canvas.releasePointerCapture(e.pointerId);
-                    activePointerId = null;
-                    return;
+                // Anti-Bocor: Saat nulis, daging telapak tangan kadang membesar bentuknya.
+                // Kalau tiba-tiba dia ngelebar jadi >12px, langsung berhentikan tarikan tinta!
+                if (isPalmRejectionOn) {
+                    const contactSize = Math.max(e.width || 1, e.height || 1);
+                    if (contactSize > 12) {
+                        stopDraw();
+                        canvas.releasePointerCapture(e.pointerId);
+                        activePointerId = null;
+                        return;
+                    }
                 }
-                
-                if (e.pointerType === 'touch' && isDrawing) e.preventDefault(); 
                 drawing(e); 
             });
 
@@ -1311,10 +1050,7 @@
 
             canvas.addEventListener('pointerup', handlePointerUp);
             canvas.addEventListener('pointerout', handlePointerUp);
-            canvas.addEventListener('pointercancel', (e) => {
-                // Paksa tetap cancel tapi bereskan logikanya
-                handlePointerUp(e); 
-            });
+            canvas.addEventListener('pointercancel', handlePointerUp); // Wajib untuk Android agar tidak mati pas di-cancel sistem
 
             syncCanvasToImage(canvas);
         };
@@ -1322,175 +1058,100 @@
         window.addEventListener("load", () => {
             setTimeout(() => {
                 const initialCanvas = document.querySelector(".drawing-board");
-                if(initialCanvas) {
-                    setupCanvas(initialCanvas);
-                    updateCursor(); 
-                }
+                if(initialCanvas) { setupCanvas(initialCanvas); updateCursor(); }
             }, 150);
         });
 
         function removeGridPreview() {
             if (activeGridPreview) {
                 if (activeGridPreview._cleanupDrag) activeGridPreview._cleanupDrag();
-                activeGridPreview.remove();
-                activeGridPreview = null;
+                activeGridPreview.remove(); activeGridPreview = null;
             }
         }
 
         function commitGrid(canvas, x, y, rows, cols) {
-            saveCanvasState(canvas); 
-            const ctx = canvas.getContext("2d");
-            
-            ctx.beginPath();
-            ctx.strokeStyle = selectedColor; 
-            ctx.lineWidth = 1; 
-            ctx.lineCap = "square";
-            
-            const cellSize = 30; 
-            const width = cols * cellSize;
-            const height = rows * cellSize;
+            saveCanvasState(canvas); const ctx = canvas.getContext("2d");
+            ctx.beginPath(); ctx.strokeStyle = selectedColor; ctx.lineWidth = 1; ctx.lineCap = "square";
+            const cellSize = 30; const width = cols * cellSize; const height = rows * cellSize;
 
-            for(let i = 0; i <= rows; i++) {
-                ctx.moveTo(x, y + i * cellSize);
-                ctx.lineTo(x + width, y + i * cellSize);
-            }
-            for(let j = 0; j <= cols; j++) {
-                ctx.moveTo(x + j * cellSize, y);
-                ctx.lineTo(x + j * cellSize, y + height);
-            }
-            ctx.stroke(); 
-            
-            syncCanvasToImage(canvas); 
-            removeGridPreview(); 
-            document.getElementById('pen').click();
+            for(let i = 0; i <= rows; i++) { ctx.moveTo(x, y + i * cellSize); ctx.lineTo(x + width, y + i * cellSize); }
+            for(let j = 0; j <= cols; j++) { ctx.moveTo(x + j * cellSize, y); ctx.lineTo(x + j * cellSize, y + height); }
+            ctx.stroke(); syncCanvasToImage(canvas); removeGridPreview(); document.getElementById('pen').click();
         }
 
         function renderGridPreview(canvas, x, y) {
             const container = canvas.closest('.canvas-container');
             if (!container) return;
-
-            removeGridPreview(); 
-            gridPreviewPos = { x, y };
-            previewTargetCanvas = canvas;
+            removeGridPreview(); gridPreviewPos = { x, y }; previewTargetCanvas = canvas;
 
             const wrapper = document.createElement('div');
-            wrapper.className = 'grid-preview-container';
-            wrapper.style.left = x + 'px';
-            wrapper.style.top = y + 'px';
-            
-            const controls = document.createElement('div');
-            controls.className = 'grid-controls';
+            wrapper.className = 'grid-preview-container'; wrapper.style.left = x + 'px'; wrapper.style.top = y + 'px';
+            const controls = document.createElement('div'); controls.className = 'grid-controls';
             
             const btnConfirm = document.createElement('div');
             btnConfirm.className = 'grid-control-btn bg-green-100 text-green-600 hover:bg-green-200';
-            btnConfirm.innerHTML = '<i class="fas fa-check"></i>';
-            btnConfirm.title = 'Terapkan (Permanen)';
-            btnConfirm.onclick = (ev) => {
-                ev.stopPropagation(); 
-                commitGrid(canvas, gridPreviewPos.x, gridPreviewPos.y, currentGridRows, currentGridCols);
-            };
+            btnConfirm.innerHTML = '<i class="fas fa-check"></i>'; btnConfirm.title = 'Terapkan (Permanen)';
+            btnConfirm.onclick = (ev) => { ev.stopPropagation(); commitGrid(canvas, gridPreviewPos.x, gridPreviewPos.y, currentGridRows, currentGridCols); };
             
             const btnAdd = document.createElement('div');
             btnAdd.className = 'grid-control-btn bg-blue-100 text-blue-600 hover:bg-blue-200';
-            btnAdd.innerHTML = '<i class="fas fa-plus"></i>';
-            btnAdd.title = 'Atur Baris & Kolom';
+            btnAdd.innerHTML = '<i class="fas fa-plus"></i>'; btnAdd.title = 'Atur Baris & Kolom';
             btnAdd.onclick = (ev) => {
                 ev.stopPropagation(); 
-                document.getElementById('grid-rows-input').value = currentGridRows;
-                document.getElementById('grid-cols-input').value = currentGridCols;
+                document.getElementById('grid-rows-input').value = currentGridRows; document.getElementById('grid-cols-input').value = currentGridCols;
                 document.getElementById('grid-modal').classList.remove('hidden');
             };
 
-            controls.appendChild(btnConfirm);
-            controls.appendChild(btnAdd);
+            controls.appendChild(btnConfirm); controls.appendChild(btnAdd);
             
-            const gridBox = document.createElement('div');
-            gridBox.className = 'grid-preview-box';
-            gridBox.style.gridTemplateColumns = `repeat(${currentGridCols}, 30px)`;
-            gridBox.style.gridTemplateRows = `repeat(${currentGridRows}, 30px)`;
+            const gridBox = document.createElement('div'); gridBox.className = 'grid-preview-box';
+            gridBox.style.gridTemplateColumns = `repeat(${currentGridCols}, 30px)`; gridBox.style.gridTemplateRows = `repeat(${currentGridRows}, 30px)`;
             
             const totalCells = currentGridRows * currentGridCols;
             for(let i=0; i<totalCells; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'grid-preview-cell';
-                gridBox.appendChild(cell);
+                const cell = document.createElement('div'); cell.className = 'grid-preview-cell'; gridBox.appendChild(cell);
             }
 
-            wrapper.appendChild(controls);
-            wrapper.appendChild(gridBox);
-            container.appendChild(wrapper);
+            wrapper.appendChild(controls); wrapper.appendChild(gridBox); container.appendChild(wrapper);
             activeGridPreview = wrapper;
 
-            let isDraggingGrid = false;
-            let startX, startY, initialLeft, initialTop;
+            let isDraggingGrid = false, startX, startY, initialLeft, initialTop;
 
             const dragStart = (e) => {
                 if(e.target.closest('.grid-control-btn')) return;
                 isDraggingGrid = true;
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                startX = clientX;
-                startY = clientY;
-                initialLeft = parseInt(wrapper.style.left || 0);
-                initialTop = parseInt(wrapper.style.top || 0);
-                wrapper.setPointerCapture(e.pointerId);
-                e.stopPropagation();
+                startX = e.touches ? e.touches[0].clientX : e.clientX; startY = e.touches ? e.touches[0].clientY : e.clientY;
+                initialLeft = parseInt(wrapper.style.left || 0); initialTop = parseInt(wrapper.style.top || 0);
+                wrapper.setPointerCapture(e.pointerId); e.stopPropagation();
             };
-
             const dragMove = (e) => {
-                if(!isDraggingGrid) return;
-                e.preventDefault(); 
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                
-                gridPreviewPos.x = initialLeft + (clientX - startX);
-                gridPreviewPos.y = initialTop + (clientY - startY);
-                wrapper.style.left = gridPreviewPos.x + 'px';
-                wrapper.style.top = gridPreviewPos.y + 'px';
+                if(!isDraggingGrid) return; e.preventDefault(); 
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                gridPreviewPos.x = initialLeft + (clientX - startX); gridPreviewPos.y = initialTop + (clientY - startY);
+                wrapper.style.left = gridPreviewPos.x + 'px'; wrapper.style.top = gridPreviewPos.y + 'px';
             };
-
             const dragEnd = () => { isDraggingGrid = false; };
 
-            wrapper.addEventListener('pointerdown', dragStart);
-            document.addEventListener('pointermove', dragMove);
-            document.addEventListener('pointerup', dragEnd);
-
-            wrapper._cleanupDrag = () => {
-                document.removeEventListener('pointermove', dragMove);
-                document.removeEventListener('pointerup', dragEnd);
-            };
+            wrapper.addEventListener('pointerdown', dragStart); document.addEventListener('pointermove', dragMove); document.addEventListener('pointerup', dragEnd);
+            wrapper._cleanupDrag = () => { document.removeEventListener('pointermove', dragMove); document.removeEventListener('pointerup', dragEnd); };
         }
 
-        document.getElementById('cancel-grid-config').addEventListener('click', () => {
-            document.getElementById('grid-modal').classList.add('hidden');
-        });
-
+        document.getElementById('cancel-grid-config').addEventListener('click', () => { document.getElementById('grid-modal').classList.add('hidden'); });
         document.getElementById('confirm-grid-config').addEventListener('click', () => {
             currentGridRows = parseInt(document.getElementById('grid-rows-input').value) || 3;
             currentGridCols = parseInt(document.getElementById('grid-cols-input').value) || 3;
             document.getElementById('grid-modal').classList.add('hidden');
-            
-            if (activeGridPreview && previewTargetCanvas) {
-                renderGridPreview(previewTargetCanvas, gridPreviewPos.x, gridPreviewPos.y);
-            }
+            if (activeGridPreview && previewTargetCanvas) renderGridPreview(previewTargetCanvas, gridPreviewPos.x, gridPreviewPos.y);
         });
 
-        // FITUR ORIENTASI KERTAS (PORTRAIT/LANDSCAPE)
+        // ORIENTATION
         const toggleOrientationBtn = document.getElementById('toggle-orientation');
         toggleOrientationBtn.addEventListener('click', () => {
             isLandscapeMode = !isLandscapeMode;
-            
-            toggleOrientationBtn.innerHTML = isLandscapeMode 
-                ? '<i class="fas fa-image text-lg"></i>' 
-                : '<i class="fas fa-portrait text-lg"></i>';
-            
-            document.getElementById('dynamic-print-style').innerHTML = isLandscapeMode 
-                ? '@page { size: A4 landscape; margin: 0mm; }' 
-                : '@page { size: A4 portrait; margin: 0mm; }';
-
+            toggleOrientationBtn.innerHTML = isLandscapeMode ? '<i class="fas fa-image text-lg"></i>' : '<i class="fas fa-portrait text-lg"></i>';
+            document.getElementById('dynamic-print-style').innerHTML = isLandscapeMode ? '@page { size: A4 landscape; margin: 0mm; }' : '@page { size: A4 portrait; margin: 0mm; }';
             const pages = document.querySelectorAll('.kertas-a4');
-            const canvasData = [];
-            document.querySelectorAll('.drawing-board').forEach(c => canvasData.push(c.toDataURL('image/png')));
+            const canvasData = []; document.querySelectorAll('.drawing-board').forEach(c => canvasData.push(c.toDataURL('image/png')));
 
             pages.forEach(p => p.classList.toggle('landscape-mode', isLandscapeMode));
 
@@ -1498,13 +1159,10 @@
                 const canvases = document.querySelectorAll('.drawing-board');
                 canvases.forEach((canvas, idx) => {
                     setupCanvas(canvas); 
-                    
-                    const img = new Image();
-                    img.src = canvasData[idx];
+                    const img = new Image(); img.src = canvasData[idx];
                     img.onload = () => {
                         const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
+                        canvas.getContext('2d').drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
                         syncCanvasToImage(canvas);
                     }
                 });
@@ -1514,43 +1172,29 @@
         addPageBtn.addEventListener("click", () => {
             const firstPage = pagesContainer.querySelector(".kertas-a4");
             const newPage = firstPage.cloneNode(true);
-            
-            const oldInputs = firstPage.querySelectorAll("input");
-            const newInputs = newPage.querySelectorAll("input");
+            const oldInputs = firstPage.querySelectorAll("input"), newInputs = newPage.querySelectorAll("input");
             newInputs.forEach((input, index) => { input.value = oldInputs[index].value; });
 
-            const oldImages = newPage.querySelectorAll(".pasted-image-container");
-            oldImages.forEach(img => img.remove());
-            const oldTexts = newPage.querySelectorAll(".pasted-text-container");
-            oldTexts.forEach(txt => txt.remove());
-            const oldPreviews = newPage.querySelectorAll(".grid-preview-container");
-            oldPreviews.forEach(el => el.remove());
-
-            const newCanvas = newPage.querySelector(".drawing-board");
+            newPage.querySelectorAll(".pasted-image-container, .pasted-text-container, .grid-preview-container").forEach(el => el.remove());
             
             pagesContainer.appendChild(newPage);
-            setupCanvas(newCanvas);
-            updateCursor(); 
+            setupCanvas(newPage.querySelector(".drawing-board")); updateCursor(); 
             newPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
         toolBtns.forEach(btn => {
             btn.addEventListener("click", () => {
                 document.querySelector(".tool-btn.active")?.classList.remove("active");
-                btn.classList.add("active");
-                selectedTool = btn.id;
-
+                btn.classList.add("active"); selectedTool = btn.id;
                 if (selectedTool !== 'grid-tool') removeGridPreview();
 
                 const canvases = document.querySelectorAll(".drawing-board");
-                if (selectedTool === 'pointer') {
-                    canvases.forEach(c => c.style.pointerEvents = 'none');
-                } else {
+                if (selectedTool === 'pointer') canvases.forEach(c => c.style.pointerEvents = 'none');
+                else {
                     canvases.forEach(c => c.style.pointerEvents = 'auto');
                     document.querySelectorAll('.pasted-image-container').forEach(el => el.classList.remove('active-img'));
                     document.querySelectorAll('.pasted-text-container').forEach(el => el.classList.remove('active-text'));
                 }
-                
                 updateCursor(); 
             });
         });
@@ -1561,166 +1205,86 @@
                 btn.classList.add("active");
                 selectedColor = window.getComputedStyle(btn).getPropertyValue("background-color");
                 
-                if(selectedTool === 'pointer' || selectedTool === 'eraser' || selectedTool === 'text-tool') {
-                    document.getElementById('pen').click();
-                } else {
-                    updateCursor();
-                }
+                if(selectedTool === 'pointer' || selectedTool === 'eraser' || selectedTool === 'text-tool') document.getElementById('pen').click();
+                else updateCursor();
             });
         });
 
-        // FITUR SAVE DAN LOAD (.coretan)
-        const btnSave = document.getElementById('btn-save');
-        const btnLoad = document.getElementById('btn-load');
-        const fileUpload = document.getElementById('file-upload');
-
-        btnSave.addEventListener('click', () => {
-            const docData = {
-                isLandscape: isLandscapeMode,
-                pages: []
-            };
-
+        // SAVE & LOAD
+        document.getElementById('btn-save').addEventListener('click', () => {
+            const docData = { isLandscape: isLandscapeMode, pages: [] };
             document.querySelectorAll('.kertas-a4').forEach((page) => {
-                const inputs = page.querySelectorAll('input');
-                const canvas = page.querySelector('.drawing-board');
+                const inputs = page.querySelectorAll('input'), canvas = page.querySelector('.drawing-board');
+                const pastedImages = [], pastedTexts = [];
                 
-                const pastedImages = [];
                 page.querySelectorAll('.pasted-image-container').forEach(imgContainer => {
                     const img = imgContainer.querySelector('img');
-                    pastedImages.push({
-                        src: img.src,
-                        left: imgContainer.style.left,
-                        top: imgContainer.style.top,
-                        width: imgContainer.style.width,
-                        height: imgContainer.style.height
-                    });
+                    pastedImages.push({ src: img.src, left: imgContainer.style.left, top: imgContainer.style.top, width: imgContainer.style.width, height: imgContainer.style.height });
                 });
 
-                const pastedTexts = [];
                 page.querySelectorAll('.pasted-text-container').forEach(txtContainer => {
-                    pastedTexts.push({
-                        content: txtContainer.querySelector('.text-content').innerHTML,
-                        left: txtContainer.style.left,
-                        top: txtContainer.style.top,
-                        width: txtContainer.style.width,
-                        height: txtContainer.style.height,
-                        color: txtContainer.style.color,
-                        fontFamily: txtContainer.style.fontFamily,
-                        fontSize: txtContainer.style.fontSize
-                    });
+                    pastedTexts.push({ content: txtContainer.querySelector('.text-content').innerHTML, left: txtContainer.style.left, top: txtContainer.style.top, width: txtContainer.style.width, height: txtContainer.style.height, color: txtContainer.style.color, fontFamily: txtContainer.style.fontFamily, fontSize: txtContainer.style.fontSize });
                 });
 
-                docData.pages.push({
-                    topik: inputs[0].value,
-                    mapel: inputs[1].value,
-                    kelas: inputs[2].value,
-                    canvasImg: canvas.toDataURL('image/png'),
-                    images: pastedImages,
-                    texts: pastedTexts
-                });
+                docData.pages.push({ topik: inputs[0].value, mapel: inputs[1].value, kelas: inputs[2].value, canvasImg: canvas.toDataURL('image/png'), images: pastedImages, texts: pastedTexts });
             });
 
-            const dataStr = JSON.stringify(docData);
-            const blob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Document_${new Date().getTime()}.coretan`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const url = URL.createObjectURL(new Blob([JSON.stringify(docData)], {type: "application/json"}));
+            const a = document.createElement('a'); a.href = url; a.download = `Document_${new Date().getTime()}.coretan`; a.click(); URL.revokeObjectURL(url);
         });
 
-        btnLoad.addEventListener('click', () => fileUpload.click());
+        const fileUpload = document.getElementById('file-upload');
+        document.getElementById('btn-load').addEventListener('click', () => fileUpload.click());
 
         fileUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            
+            const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = (ev) => {
-                try {
-                    const docData = JSON.parse(ev.target.result);
-                    restoreDocument(docData);
-                } catch(err) {
-                    alert("Gagal membaca file! Pastikan file berformat .coretan");
-                }
+                try { restoreDocument(JSON.parse(ev.target.result)); } catch(err) { alert("Gagal membaca file! Pastikan format .coretan"); }
             };
-            reader.readAsText(file);
-            e.target.value = ''; 
+            reader.readAsText(file); e.target.value = ''; 
         });
 
         function restoreDocument(docData) {
-            if (isLandscapeMode !== docData.isLandscape) {
-                document.getElementById('toggle-orientation').click();
-            }
+            if (isLandscapeMode !== docData.isLandscape) document.getElementById('toggle-orientation').click();
 
             const templatePage = document.querySelector('.kertas-a4').cloneNode(true);
             templatePage.querySelectorAll('input').forEach(i => i.value = '');
             templatePage.querySelectorAll('.pasted-image-container, .pasted-text-container, .grid-preview-container').forEach(e => e.remove());
-            
             pagesContainer.innerHTML = ''; 
 
             docData.pages.forEach((pageData) => {
-                const newPage = templatePage.cloneNode(true);
-                pagesContainer.appendChild(newPage);
-
+                const newPage = templatePage.cloneNode(true); pagesContainer.appendChild(newPage);
                 const inputs = newPage.querySelectorAll('input');
-                inputs[0].value = pageData.topik;
-                inputs[1].value = pageData.mapel;
-                inputs[2].value = pageData.kelas;
+                inputs[0].value = pageData.topik; inputs[1].value = pageData.mapel; inputs[2].value = pageData.kelas;
 
-                const newCanvas = newPage.querySelector('.drawing-board');
-                setupCanvas(newCanvas);
+                const newCanvas = newPage.querySelector('.drawing-board'); setupCanvas(newCanvas);
 
                 if(pageData.canvasImg) {
-                    const img = new Image();
-                    img.src = pageData.canvasImg;
+                    const img = new Image(); img.src = pageData.canvasImg;
                     img.onload = () => {
                         const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
                         newCanvas.getContext('2d').drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
-                        syncCanvasToImage(newCanvas);
-                        saveCanvasState(newCanvas);
+                        syncCanvasToImage(newCanvas); saveCanvasState(newCanvas);
                     };
                 }
 
                 pageData.images.forEach(imgData => {
                     const container = newPage.querySelector('.canvas-container');
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'pasted-image-container';
-                    wrapper.style.left = imgData.left;
-                    wrapper.style.top = imgData.top;
-                    wrapper.style.width = imgData.width;
-                    wrapper.style.height = imgData.height;
+                    const wrapper = document.createElement('div'); wrapper.className = 'pasted-image-container';
+                    wrapper.style.left = imgData.left; wrapper.style.top = imgData.top; wrapper.style.width = imgData.width; wrapper.style.height = imgData.height;
                     
-                    const imgEl = document.createElement('img');
-                    imgEl.src = imgData.src;
-                    wrapper.appendChild(imgEl);
-
-                    const resizeHandle = document.createElement('div');
-                    resizeHandle.className = 'resize-handle';
-                    wrapper.appendChild(resizeHandle);
-
-                    const deleteBtn = document.createElement('div');
-                    deleteBtn.className = 'delete-img-btn';
-                    deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    deleteBtn.onclick = () => {
-                        wrapper.remove();
-                        syncCanvasToImage(newCanvas);
-                    };
-                    wrapper.appendChild(deleteBtn);
+                    const imgEl = document.createElement('img'); imgEl.src = imgData.src; wrapper.appendChild(imgEl);
+                    const resizeHandle = document.createElement('div'); resizeHandle.className = 'resize-handle'; wrapper.appendChild(resizeHandle);
+                    const deleteBtn = document.createElement('div'); deleteBtn.className = 'delete-img-btn'; deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    deleteBtn.onclick = () => { wrapper.remove(); syncCanvasToImage(newCanvas); }; wrapper.appendChild(deleteBtn);
 
                     container.insertBefore(wrapper, newCanvas);
-                    
                     imgEl.onload = () => syncCanvasToImage(newCanvas);
                     makeDraggableAndResizable(wrapper, resizeHandle, container, newCanvas);
                 });
 
-                if (pageData.texts) {
-                    pageData.texts.forEach(txtData => {
-                        createTextElement(newCanvas, 0, 0, txtData);
-                    });
-                }
+                if (pageData.texts) pageData.texts.forEach(txtData => { createTextElement(newCanvas, 0, 0, txtData); });
             });
             updateCursor();
         }
