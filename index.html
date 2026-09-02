@@ -16,7 +16,6 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Konfigurasi Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -145,7 +144,7 @@
             width: 100%;
             height: 100%;
             outline: none;
-            text-align: justify; 
+            text-align: justify; /* Sesuai request: Teks default justify */
             padding: 8px;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -280,6 +279,7 @@
     <input type="file" id="file-upload" accept=".coretan" class="hidden">
 
     <!-- TOOLBAR VERTIKAL KIRI (2 KOLOM) -->
+    <!-- Toolbar ini dibiarkan scrollable (overflow-y-auto) tanpa di-blok oleh Palm Reject -->
     <div class="fixed left-4 top-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-3 border border-gray-200 z-50 max-h-[95vh] overflow-y-auto w-28 items-center no-print scrollbar-hide">
         
         <div class="grid grid-cols-2 gap-2 w-full place-items-center">
@@ -479,6 +479,7 @@
     <!-- KONTAINER UTAMA -->
     <div id="main-content" class="w-full">
         <div id="pages-container" class="flex flex-col gap-10">
+            <!-- Halaman Utama (Default A4) -->
             <div class="kertas-a4 rounded-xl print:rounded-none">
                 <table class="w-full border-collapse">
                     <thead>
@@ -555,7 +556,6 @@
         </div>
     </div>
 
-    <!-- -->
     <script>
         const toolBtns = document.querySelectorAll(".tool-btn");
         const colorBtns = document.querySelectorAll(".color-btn");
@@ -585,13 +585,14 @@
         
         const MAX_UNDO_STEPS = 15; 
 
+        // Grid Variables
         let currentGridRows = 3;
         let currentGridCols = 3;
         let activeGridPreview = null;
         let gridPreviewPos = { x: 0, y: 0 };
         let previewTargetCanvas = null;
 
-        // FITUR PALM REJECTION (PEN ONLY MODE)
+        // FITUR SMART PALM REJECTION (Jurus Deteksi Fisik)
         let isPalmRejectionOn = false;
         const palmRejectBtn = document.getElementById('palm-reject-btn');
         palmRejectBtn.addEventListener('click', () => {
@@ -599,7 +600,7 @@
             if (isPalmRejectionOn) {
                 palmRejectBtn.classList.add("bg-green-100", "text-green-700", "border-green-400");
                 palmRejectBtn.innerHTML = '<i class="fas fa-pen-nib text-lg"></i>';
-                palmRejectBtn.title = "Mode Hanya Pen (Palm Reject ON)";
+                palmRejectBtn.title = "Mode Khusus Pulpen (Palm Reject ON)";
             } else {
                 palmRejectBtn.classList.remove("bg-green-100", "text-green-700", "border-green-400");
                 palmRejectBtn.innerHTML = '<i class="fas fa-hand-paper text-lg"></i>';
@@ -871,6 +872,7 @@
             });
         }
 
+        // KOORDINAT PINTAR (ANTI-OFFSET) MENGGUNAKAN SKALA
         const getMousePos = (canvas, evt) => {
             const rect = canvas.getBoundingClientRect();
             let clientX = evt.clientX || 0;
@@ -931,9 +933,27 @@
             ctx.clearRect(0, 0, w, h);
             canvas.undoStack = [];
 
-            // Universal Pointer Events
-            canvas.addEventListener('pointerdown', (e) => { e.preventDefault(); startDraw(e); });
-            canvas.addEventListener('pointermove', (e) => { e.preventDefault(); drawing(e); });
+            // Universal Pointer Events (Hanya berlaku untuk Canvas. Toolbar tetap aman untuk di-scroll)
+            canvas.addEventListener('pointerdown', (e) => { 
+                if (isPalmRejectionOn && e.pointerType === 'touch') {
+                    // Deteksi fisik: Jika sentuhan terlalu lebar (jari/telapak), blokir.
+                    if (e.width > 5 || e.height > 5) return;
+                    // Blokir juga jika ada lebih dari 1 titik sentuhan (multi-touch)
+                    if (!e.isPrimary) return;
+                }
+                // Blok scroll di kanvas (mencegah geser/zoom pas tangan nyandar)
+                if (e.pointerType === 'touch') e.preventDefault(); 
+                startDraw(e); 
+            });
+            
+            canvas.addEventListener('pointermove', (e) => { 
+                if (isPalmRejectionOn && e.pointerType === 'touch') {
+                    if (e.width > 5 || e.height > 5 || !e.isPrimary) return;
+                }
+                if (e.pointerType === 'touch' && isDrawing) e.preventDefault(); 
+                drawing(e); 
+            });
+            
             canvas.addEventListener('pointerup', stopDraw);
             canvas.addEventListener('pointerout', stopDraw);
             canvas.addEventListener('pointercancel', stopDraw);
@@ -1026,9 +1046,6 @@
 
         const startDraw = (e) => {
             if(selectedTool === 'pointer') return; 
-            
-            // PALM REJECTION CHECK
-            if(isPalmRejectionOn && e.pointerType === 'touch') return; 
 
             if(selectedTool === 'grid-tool') { const pos = getMousePos(e.target, e); renderGridPreview(e.target, pos.x, pos.y); return; }
             if(selectedTool === 'text-tool') { const pos = getMousePos(e.target, e); createTextElement(e.target, pos.x, pos.y); return; }
@@ -1055,7 +1072,6 @@
 
         const drawing = (e) => {
             if(!isDrawing || !currentCtx || !currentCanvas || selectedTool === 'pointer' || selectedTool === 'grid-tool' || selectedTool === 'text-tool') return;
-            if(isPalmRejectionOn && e.pointerType === 'touch') return; 
 
             const pos = getMousePos(currentCanvas, e);
             if (selectedTool !== "pen" && selectedTool !== "eraser") if (snapshot) currentCtx.putImageData(snapshot, 0, 0); 
