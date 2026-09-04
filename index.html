@@ -175,7 +175,40 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* CSS FALLBACK UNTUK PRINT (Menyatukan Canvas dan Gambar) */
+        /* CSS KALKULATOR MELAYANG */
+        #floating-calculator {
+            position: fixed; top: 100px; left: 160px; width: 320px; z-index: 150;
+            background: #1f2022; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border: 1px solid #3f4044; display: none; flex-direction: column; overflow: hidden;
+        }
+        .calc-header {
+            background: #2b2d30; padding: 10px; cursor: move; display: flex; 
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #3f4044;
+            user-select: none; touch-action: none;
+        }
+        .calc-screen {
+            background: #1f2022; padding: 15px 20px; text-align: right;
+            border-bottom: 1px solid #3f4044; min-height: 90px;
+        }
+        .calc-expr { font-size: 14px; color: #a1a1aa; min-height: 20px; word-break: break-all; margin-bottom: 4px; }
+        .calc-result { font-size: 32px; color: #ffffff; font-weight: 600; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .calc-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: #3f4044;
+        }
+        .calc-btn-custom {
+            background: #2b2d30; color: #e4e4e7; border: none; padding: 14px 0; font-size: 14px;
+            font-weight: 500; cursor: pointer; transition: all 0.1s; user-select: none;
+        }
+        .calc-btn-custom:active { background: #3f4044; }
+        .calc-btn-custom.num { background: #1f2022; font-size: 18px; }
+        .calc-btn-custom.num:active { background: #2b2d30; }
+        .calc-btn-custom.op { background: #f57c00; color: white; font-size: 18px; font-weight: bold; }
+        .calc-btn-custom.op:active { background: #e65100; }
+        .calc-btn-custom.equals { background: #d81b60; color: white; grid-column: span 2; font-size: 20px; }
+        .calc-btn-custom.equals:active { background: #ad1457; }
+        .calc-btn-custom.special { color: #fbc02d; font-size: 13px;}
+
+        /* CSS FALLBACK UNTUK PRINT */
         .print-fallback {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 50;
@@ -209,7 +242,7 @@
             .kertas-a4 .canvas-container { height: 190mm !important; }
             .kertas-a4.landscape-mode .canvas-container { height: 110mm !important; }
 
-            canvas.drawing-board, .pasted-image-container, .grid-preview-container { display: none !important; }
+            canvas.drawing-board, .pasted-image-container, .grid-preview-container, #floating-calculator { display: none !important; }
             .pasted-text-container { z-index: 60 !important; border: none !important; }
             .pasted-text-container .text-drag-handle, .pasted-text-container .delete-img-btn, .pasted-text-container .resize-handle { display: none !important; }
 
@@ -230,12 +263,9 @@
     <div class="fixed left-4 top-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-3 border border-gray-200 z-50 max-h-[95vh] overflow-y-auto w-28 items-center no-print scrollbar-hide touch-pan-y">
         
         <div class="grid grid-cols-2 gap-2 w-full place-items-center">
-            <!-- ALAT KURSOR & PALM REJECT -->
-            <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="pointer" title="Kursor (Geser Gambar & Teks)">
+            <!-- ALAT KURSOR -->
+            <button class="tool-btn col-span-2 w-full h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="pointer" title="Kursor (Geser Gambar & Teks)">
                 <i class="fas fa-mouse-pointer"></i>
-            </button>
-            <button class="action-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-all text-gray-700" id="palm-reject-btn" title="Mode Bebas (Palm Reject OFF)">
-                <i class="fas fa-hand-paper text-lg"></i>
             </button>
             
             <div class="col-span-2 w-full h-px bg-gray-300 my-0.5"></div>
@@ -278,12 +308,17 @@
             
             <div class="col-span-2 w-full h-px bg-gray-300 my-0.5"></div>
             
-            <!-- ALAT SPESIAL (GRID & TEKS) -->
+            <!-- ALAT SPESIAL (GRID, TEKS, KALKULATOR) -->
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-brand-pink" id="grid-tool" title="Alat Stempel Tabel">
                 <i class="fas fa-border-all"></i>
             </button>
             <button class="tool-btn w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-blue-600" id="text-tool" title="Tambah Teks (Text Box)">
                 <i class="fas fa-font"></i>
+            </button>
+            
+            <!-- TOMBOL KALKULATOR -->
+            <button class="action-btn col-span-2 w-full h-10 rounded-lg border border-brand-orange bg-orange-50 text-brand-orange flex items-center justify-center hover:bg-orange-100 transition-colors font-bold" id="btn-toggle-calc" title="Buka/Tutup Kalkulator">
+                <i class="fas fa-calculator mr-2"></i> Kalk.
             </button>
 
             <div class="col-span-2 w-full h-px bg-gray-300 my-0.5"></div>
@@ -408,6 +443,67 @@
         </div>
     </div>
 
+    <!-- KALKULATOR MELAYANG (SCIENTIFIC) -->
+    <div id="floating-calculator" class="no-print">
+        <div class="calc-header" id="calc-header">
+            <span class="text-xs font-bold text-gray-300 tracking-wider">EXE CALCULATOR</span>
+            <button id="close-calc" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="calc-screen">
+            <div class="calc-expr" id="calc-expr"></div>
+            <div class="calc-result" id="calc-result">0</div>
+        </div>
+        <div class="calc-grid">
+            <!-- Row 1 -->
+            <button class="calc-btn-custom special" id="btn-deg-rad">DEG</button>
+            <button class="calc-btn-custom" onclick="inputCalc('sin(')">sin</button>
+            <button class="calc-btn-custom" onclick="inputCalc('cos(')">cos</button>
+            <button class="calc-btn-custom" onclick="inputCalc('tan(')">tan</button>
+            <button class="calc-btn-custom" style="color: #ef4444;" onclick="clearCalc()">AC</button>
+            
+            <!-- Row 2 -->
+            <button class="calc-btn-custom" onclick="inputCalc('asin(')">asin</button>
+            <button class="calc-btn-custom" onclick="inputCalc('acos(')">acos</button>
+            <button class="calc-btn-custom" onclick="inputCalc('atan(')">atan</button>
+            <button class="calc-btn-custom" onclick="inputCalc('ln(')">ln</button>
+            <button class="calc-btn-custom" style="color: #f57c00;" onclick="deleteCalc()">DEL</button>
+            
+            <!-- Row 3 -->
+            <button class="calc-btn-custom" onclick="inputCalc('log(')">log</button>
+            <button class="calc-btn-custom" onclick="inputCalc('(')">(</button>
+            <button class="calc-btn-custom" onclick="inputCalc(')')">)</button>
+            <button class="calc-btn-custom" onclick="inputCalc('^')">xʸ</button>
+            <button class="calc-btn-custom op" onclick="inputCalc('÷')">÷</button>
+            
+            <!-- Row 4 -->
+            <button class="calc-btn-custom" onclick="inputCalc('√(')">√</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('7')">7</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('8')">8</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('9')">9</button>
+            <button class="calc-btn-custom op" onclick="inputCalc('×')">×</button>
+            
+            <!-- Row 5 -->
+            <button class="calc-btn-custom special" onclick="inputCalc('π')">π</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('4')">4</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('5')">5</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('6')">6</button>
+            <button class="calc-btn-custom op" onclick="inputCalc('-')">−</button>
+            
+            <!-- Row 6 -->
+            <button class="calc-btn-custom special" onclick="inputCalc('e')">e</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('1')">1</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('2')">2</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('3')">3</button>
+            <button class="calc-btn-custom op" onclick="inputCalc('+')">+</button>
+            
+            <!-- Row 7 -->
+            <button class="calc-btn-custom" onclick="inputCalc('^2')">x²</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('0')">0</button>
+            <button class="calc-btn-custom num" onclick="inputCalc('.')">.</button>
+            <button class="calc-btn-custom equals" onclick="calculateResult()">=</button>
+        </div>
+    </div>
+
     <div id="main-content" class="w-full">
         <!-- KONTAINER SEMUA HALAMAN KERTAS -->
         <div id="pages-container" class="flex flex-col gap-10">
@@ -445,7 +541,7 @@
                         <tr>
                             <td class="pb-6">
                                 <div class="canvas-container w-full border-2 border-dashed border-gray-300 rounded-xl bg-white relative">
-                                    <canvas class="drawing-board w-full h-full block absolute top-0 left-0" style="z-index: 10;"></canvas>
+                                    <canvas class="drawing-board w-full h-full block absolute top-0 left-0" style="z-index: 10; touch-action: none;"></canvas>
                                     <img class="print-fallback" alt="" />
                                 </div>
                             </td>
@@ -513,8 +609,6 @@
         let lastHoveredContainer = null;
         let isLandscapeMode = false;
         
-        // --- JURUS DUET MAUT: PALM REJECTION & ID LOCK ---
-        let isPalmRejectionOn = false;
         let activePointerId = null; 
         
         const MAX_UNDO_STEPS = 15; 
@@ -523,21 +617,6 @@
         let activeGridPreview = null;
         let gridPreviewPos = { x: 0, y: 0 };
         let previewTargetCanvas = null;
-
-        // Toggle Palm Rejection Button Logic
-        const palmRejectBtn = document.getElementById('palm-reject-btn');
-        palmRejectBtn.addEventListener('click', () => {
-            isPalmRejectionOn = !isPalmRejectionOn;
-            if (isPalmRejectionOn) {
-                palmRejectBtn.classList.add("bg-green-100", "text-green-700", "border-green-400");
-                palmRejectBtn.innerHTML = '<i class="fas fa-pen-nib text-lg"></i>';
-                palmRejectBtn.title = "Mode Khusus Pulpen (Palm Reject ON)";
-            } else {
-                palmRejectBtn.classList.remove("bg-green-100", "text-green-700", "border-green-400");
-                palmRejectBtn.innerHTML = '<i class="fas fa-hand-paper text-lg"></i>';
-                palmRejectBtn.title = "Mode Bebas (Palm Reject OFF)";
-            }
-        });
 
         // Custom Cursors logic (SVG inline)
         function updateCursor() {
@@ -823,7 +902,7 @@
                 clientX = evt.changedTouches[0].clientX; clientY = evt.changedTouches[0].clientY;
             }
 
-            // Anti-Offset: Hitung rasio asli kanvas vs CSS di layar
+            // Anti-Offset
             const dpr = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
             const logicalWidth = canvas.width / dpr;
             const logicalHeight = canvas.height / dpr;
@@ -857,7 +936,6 @@
             }
         }
 
-        // --- MATH BENTUK (2D & 3D) ---
         const drawRect = (pos, ctx) => { ctx.strokeRect(pos.x, pos.y, prevMouseX - pos.x, prevMouseY - pos.y); }
         const drawCircle = (pos, ctx) => {
             ctx.beginPath();
@@ -881,7 +959,6 @@
             ctx.lineTo(pos.x - headlen * Math.cos(angle + Math.PI / 6), pos.y - headlen * Math.sin(angle + Math.PI / 6));
             ctx.stroke();
         }
-        
         const drawCube = (pos, ctx) => {
             let x = Math.min(pos.x, prevMouseX), y = Math.min(pos.y, prevMouseY);
             let w = Math.abs(pos.x - prevMouseX), h = Math.abs(pos.y - prevMouseY);
@@ -967,7 +1044,6 @@
             }
         }
 
-        // FUNGSI INTI JURUS DUET MAUT
         const setupCanvas = (canvas) => {
             const ctx = canvas.getContext("2d", { willReadFrequently: true });
             const rect = canvas.parentElement.getBoundingClientRect();
@@ -978,65 +1054,16 @@
             ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
             canvas.undoStack = [];
 
-            // 1. KUBAH PELINDUNG ANDROID: Cegah gestur sentuh bawaan (scroll/zoom) HANYA di kanvas
-            const blockAndroidGestures = (e) => {
-                if (selectedTool !== 'pointer' && selectedTool !== 'text-tool' && selectedTool !== 'grid-tool') {
-                    e.preventDefault();
-                }
-            };
-            canvas.addEventListener('touchstart', blockAndroidGestures, { passive: false });
-            canvas.addEventListener('touchmove', blockAndroidGestures, { passive: false });
-
-            // 2. MESIN DETEKSI FISIK & ID LOCK
+            // MODE BEBAS 100%: Tidak ada Palm Reject, tidak ada Hardware Checks. Super Ringan.
             canvas.addEventListener('pointerdown', (e) => {
-                if(selectedTool === 'pointer' || selectedTool === 'grid-tool' || selectedTool === 'text-tool') { startDraw(e); return; }
-
-                // Hitung seberapa lebar/besar objek yang nempel
-                const contactSize = Math.max(e.width || 1, e.height || 1);
-                const isLikelyPalm = contactSize > 12; // Jika lebih lebar dari 12px = fix kulit/telapak tangan
-                const isLikelyStylus = contactSize <= 12; // Jika kecil = Stylus / Mouse
-
-                if (isPalmRejectionOn) {
-                    if (isLikelyPalm) return; // TOLAK MENTAH-MENTAH kulit jika mode aktif
-                    
-                    // JURUS REBUT KEKUASAAN (Hijack Lock)
-                    // Kalau kebetulan sistem udah ngunci ID telapak tangan (error deteksi awal) 
-                    // dan muncul ID baru yang kecil (stylus), langsung bajak kursornya!
-                    if (activePointerId !== null && activePointerId !== e.pointerId) {
-                        if (isLikelyStylus) {
-                            stopDraw(); 
-                            activePointerId = e.pointerId; 
-                        } else {
-                            return; 
-                        }
-                    } else if (activePointerId === null) {
-                        activePointerId = e.pointerId;
-                    }
-                } else {
-                    // Mode Bebas: Kunci kursor ke sentuhan PERTAMA siapa cepat dia dapat. 
-                    // Tangan yang nyandar belakangan gak bakal bikin coretan nyasar.
-                    if (activePointerId !== null) return; 
-                    activePointerId = e.pointerId;
-                }
-
+                if (activePointerId !== null) return; // Mencegah multi-touch ngawur (Cukup kunci ID yg nempel pertama)
+                activePointerId = e.pointerId;
                 canvas.setPointerCapture(e.pointerId);
                 startDraw(e);
             });
 
             canvas.addEventListener('pointermove', (e) => { 
                 if (e.pointerId !== activePointerId) return;
-                
-                // Anti-Bocor: Saat nulis, daging telapak tangan kadang membesar bentuknya.
-                // Kalau tiba-tiba dia ngelebar jadi >12px, langsung berhentikan tarikan tinta!
-                if (isPalmRejectionOn) {
-                    const contactSize = Math.max(e.width || 1, e.height || 1);
-                    if (contactSize > 12) {
-                        stopDraw();
-                        canvas.releasePointerCapture(e.pointerId);
-                        activePointerId = null;
-                        return;
-                    }
-                }
                 drawing(e); 
             });
 
@@ -1050,7 +1077,7 @@
 
             canvas.addEventListener('pointerup', handlePointerUp);
             canvas.addEventListener('pointerout', handlePointerUp);
-            canvas.addEventListener('pointercancel', handlePointerUp); // Wajib untuk Android agar tidak mati pas di-cancel sistem
+            canvas.addEventListener('pointercancel', handlePointerUp); 
 
             syncCanvasToImage(canvas);
         };
@@ -1116,7 +1143,6 @@
             activeGridPreview = wrapper;
 
             let isDraggingGrid = false, startX, startY, initialLeft, initialTop;
-
             const dragStart = (e) => {
                 if(e.target.closest('.grid-control-btn')) return;
                 isDraggingGrid = true;
@@ -1144,7 +1170,6 @@
             if (activeGridPreview && previewTargetCanvas) renderGridPreview(previewTargetCanvas, gridPreviewPos.x, gridPreviewPos.y);
         });
 
-        // ORIENTATION
         const toggleOrientationBtn = document.getElementById('toggle-orientation');
         toggleOrientationBtn.addEventListener('click', () => {
             isLandscapeMode = !isLandscapeMode;
@@ -1174,7 +1199,6 @@
             const newPage = firstPage.cloneNode(true);
             const oldInputs = firstPage.querySelectorAll("input"), newInputs = newPage.querySelectorAll("input");
             newInputs.forEach((input, index) => { input.value = oldInputs[index].value; });
-
             newPage.querySelectorAll(".pasted-image-container, .pasted-text-container, .grid-preview-container").forEach(el => el.remove());
             
             pagesContainer.appendChild(newPage);
@@ -1204,7 +1228,6 @@
                 document.querySelector(".color-btn.active")?.classList.remove("active");
                 btn.classList.add("active");
                 selectedColor = window.getComputedStyle(btn).getPropertyValue("background-color");
-                
                 if(selectedTool === 'pointer' || selectedTool === 'eraser' || selectedTool === 'text-tool') document.getElementById('pen').click();
                 else updateCursor();
             });
@@ -1235,7 +1258,6 @@
 
         const fileUpload = document.getElementById('file-upload');
         document.getElementById('btn-load').addEventListener('click', () => fileUpload.click());
-
         fileUpload.addEventListener('change', (e) => {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
@@ -1273,7 +1295,6 @@
                     const container = newPage.querySelector('.canvas-container');
                     const wrapper = document.createElement('div'); wrapper.className = 'pasted-image-container';
                     wrapper.style.left = imgData.left; wrapper.style.top = imgData.top; wrapper.style.width = imgData.width; wrapper.style.height = imgData.height;
-                    
                     const imgEl = document.createElement('img'); imgEl.src = imgData.src; wrapper.appendChild(imgEl);
                     const resizeHandle = document.createElement('div'); resizeHandle.className = 'resize-handle'; wrapper.appendChild(resizeHandle);
                     const deleteBtn = document.createElement('div'); deleteBtn.className = 'delete-img-btn'; deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
@@ -1288,6 +1309,139 @@
             });
             updateCursor();
         }
+
+        // LOGIKA KALKULATOR MELAYANG
+        const calcContainer = document.getElementById('floating-calculator');
+        const btnToggleCalc = document.getElementById('btn-toggle-calc');
+        const btnCloseCalc = document.getElementById('close-calc');
+        const calcHeader = document.getElementById('calc-header');
+        
+        const calcExpr = document.getElementById('calc-expr');
+        const calcResult = document.getElementById('calc-result');
+        const btnDegRad = document.getElementById('btn-deg-rad');
+
+        let isCalcOpen = false;
+        let isRadMode = false; // Default ke DEG
+        let expressionStr = "";
+
+        // Toggle Buka/Tutup
+        btnToggleCalc.addEventListener('click', () => {
+            isCalcOpen = !isCalcOpen;
+            calcContainer.style.display = isCalcOpen ? 'flex' : 'none';
+        });
+        btnCloseCalc.addEventListener('click', () => {
+            isCalcOpen = false;
+            calcContainer.style.display = 'none';
+        });
+
+        // Toggle RAD / DEG
+        btnDegRad.addEventListener('click', () => {
+            isRadMode = !isRadMode;
+            btnDegRad.innerText = isRadMode ? "RAD" : "DEG";
+            if (expressionStr !== "") calculateResult(); // Hitung ulang kalau ada isinya
+        });
+
+        // Input Tombol
+        window.inputCalc = function(val) {
+            expressionStr += val;
+            updateCalcDisplay();
+        };
+
+        window.clearCalc = function() {
+            expressionStr = "";
+            calcResult.innerText = "0";
+            updateCalcDisplay();
+        };
+
+        window.deleteCalc = function() {
+            if (expressionStr.length > 0) {
+                // Delete pintar: hapus fungsi sekaligus (misal 'sin(')
+                if (expressionStr.endsWith('sin(') || expressionStr.endsWith('cos(') || expressionStr.endsWith('tan(') || expressionStr.endsWith('log(')) {
+                    expressionStr = expressionStr.slice(0, -4);
+                } else if (expressionStr.endsWith('asin(') || expressionStr.endsWith('acos(') || expressionStr.endsWith('atan(')) {
+                    expressionStr = expressionStr.slice(0, -5);
+                } else if (expressionStr.endsWith('ln(') || expressionStr.endsWith('√(')) {
+                    expressionStr = expressionStr.slice(0, -3);
+                } else {
+                    expressionStr = expressionStr.slice(0, -1);
+                }
+                updateCalcDisplay();
+            }
+        };
+
+        function updateCalcDisplay() {
+            calcExpr.innerText = expressionStr;
+        }
+
+        // Engine Perhitungan Aman
+        window.calculateResult = function() {
+            if (!expressionStr) return;
+            try {
+                // Konversi simbol UI ke Sintaks JavaScript Math
+                let evalStr = expressionStr
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e/g, 'Math.E')
+                    .replace(/√\(/g, 'Math.sqrt(')
+                    .replace(/\^2/g, '**2')
+                    .replace(/\^/g, '**')
+                    .replace(/sin\(/g, 'customSin(')
+                    .replace(/cos\(/g, 'customCos(')
+                    .replace(/tan\(/g, 'customTan(')
+                    .replace(/asin\(/g, 'customAsin(')
+                    .replace(/acos\(/g, 'customAcos(')
+                    .replace(/atan\(/g, 'customAtan(')
+                    .replace(/ln\(/g, 'Math.log(')
+                    .replace(/log\(/g, 'Math.log10(');
+
+                // Fungsi Trigonometri Custom (Handle Mode Derajat/Radian)
+                const customSin = (x) => Math.sin(isRadMode ? x : x * Math.PI / 180);
+                const customCos = (x) => Math.cos(isRadMode ? x : x * Math.PI / 180);
+                const customTan = (x) => Math.tan(isRadMode ? x : x * Math.PI / 180);
+                const customAsin = (x) => isRadMode ? Math.asin(x) : Math.asin(x) * 180 / Math.PI;
+                const customAcos = (x) => isRadMode ? Math.acos(x) : Math.acos(x) * 180 / Math.PI;
+                const customAtan = (x) => isRadMode ? Math.atan(x) : Math.atan(x) * 180 / Math.PI;
+
+                // Eksekusi aman menggunakan Function Constructor dengan Scope yang dikunci
+                const func = new Function('Math', 'customSin', 'customCos', 'customTan', 'customAsin', 'customAcos', 'customAtan', `return ${evalStr}`);
+                let res = func(Math, customSin, customCos, customTan, customAsin, customAcos, customAtan);
+
+                // Pembulatan Pintar (hindari float berantakan seperti 0.1+0.2=0.30000000000000004)
+                if (typeof res === 'number') {
+                    res = Math.round(res * 10000000000) / 10000000000;
+                }
+                
+                if (isNaN(res)) res = "Math Error";
+                calcResult.innerText = res;
+            } catch (err) {
+                calcResult.innerText = "Syntax Error";
+            }
+        };
+
+        // Drag Logic Kalkulator
+        let isDraggingCalc = false;
+        let calcStartX, calcStartY, calcInitialLeft, calcInitialTop;
+
+        calcHeader.addEventListener('pointerdown', (e) => {
+            isDraggingCalc = true;
+            calcStartX = e.clientX;
+            calcStartY = e.clientY;
+            calcInitialLeft = calcContainer.offsetLeft;
+            calcInitialTop = calcContainer.offsetTop;
+            calcHeader.setPointerCapture(e.pointerId);
+            e.preventDefault();
+        });
+
+        calcHeader.addEventListener('pointermove', (e) => {
+            if(isDraggingCalc) {
+                calcContainer.style.left = calcInitialLeft + (e.clientX - calcStartX) + 'px';
+                calcContainer.style.top = calcInitialTop + (e.clientY - calcStartY) + 'px';
+            }
+        });
+
+        calcHeader.addEventListener('pointerup', () => { isDraggingCalc = false; });
+        calcHeader.addEventListener('pointercancel', () => { isDraggingCalc = false; });
     </script>
 </body>
 </html>
